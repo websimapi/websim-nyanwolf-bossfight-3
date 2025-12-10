@@ -162,6 +162,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPaused = false;
     let replayData = []; // Store frame data for replay
 
+    // Replay System State
+    let eventsQueue = [];
+    
+    function recordReplayEvent(type) {
+        if (!isGameOver && !isPaused) {
+            eventsQueue.push(type);
+        }
+    }
+
     // Gardens Game State
     let gardensGameActive = false;
     let playerCarrotSize = 0;
@@ -547,6 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (chargeDuration >= STINK_RAY_CHARGE_TIME) {
                         createPlayerProjectile('stink_ray');
                         playSound(stinkRayFireBuffer);
+                        recordReplayEvent('stink_fire');
                         lastPlayerAttackTime = Date.now();
                     } else if (chargeDuration < QUICK_TAP_THRESHOLD) {
                         if (Date.now() - lastPlayerAttackTime > PLAYER_ATTACK_COOLDOWN) {
@@ -610,6 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
             splash.style.top = (y - 25) + 'px';
             effectsContainer.appendChild(splash);
             playSound(waterSplashBuffer); // Play new splash sound
+            recordReplayEvent('splash');
             setTimeout(() => {
                 if (splash.parentNode) splash.remove();
             }, 300);
@@ -712,6 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isGameOver = false;
         isPaused = false;
         replayData = []; // Reset replay data
+        eventsQueue = []; // Reset event queue
         pauseScreen.style.display = 'none';
         pauseButton.textContent = 'Pause';
         pauseButton.style.display = 'block';
@@ -982,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateHealthBar(playerHealthBarElem, player.health, currentPlayerMaxHealth, playerHealthLabel, "");
             playSound(healPickupBuffer);
+            recordReplayEvent('heal');
             if (healItem.element) healItem.element.remove();
             healItem = null;
             // No need to reset lastHealSpawnTime here, it will naturally spawn after interval if needed
@@ -1077,6 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pSpeed = PLAYER_PROJECTILE_SPEED;
             pDamage = currentPlayerProjectileDamage;
             playSound(playerShootBuffer);
+            recordReplayEvent('shoot');
         }
         
         pElem.style.width = `${pWidth}px`;
@@ -1141,6 +1155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateHealthBar(playerHealthBarElem, player.health, currentPlayerMaxHealth, playerHealthLabel, "");
 
                     playSound(playerHitBuffer);
+                    recordReplayEvent('hit');
 
                     if (player.health <= 0) {
                         gameOver(false); 
@@ -1361,7 +1376,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     playerSkin: playerSkinImg,
                     bossSkin: equippedBossSkin.image || '/nyanwolf-neutral-no-background.png',
                     background: bgImg,
-                    bossProjectileImage: bossProjImg
+                    bossProjectileImage: bossProjImg,
+                    bgmSrc: bgm.src
                 };
                 
                 mountReplay('replay-player-root', replayData, staticData);
@@ -1599,6 +1615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (chargeDuration >= STINK_RAY_CHARGE_TIME) { // Fully charged
                     createPlayerProjectile('stink_ray');
                     playSound(stinkRayFireBuffer);
+                    recordReplayEvent('stink_fire');
                     lastPlayerAttackTime = Date.now(); // Stink Ray also respects/resets cooldown
                 } 
                 // Else: released 'e' early, Stink Ray doesn't fire. No fallback to normal shot.
@@ -2185,6 +2202,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- REPLAY RECORDING START ---
         // Optimization: push lightweight objects
+        const currentFrameEvents = [...eventsQueue];
+        eventsQueue = []; // Clear queue for next frame
+
         replayData.push({
             player: { x: player.x, y: player.y },
             boss: { x: boss.x, y: boss.y },
@@ -2204,7 +2224,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 height: p.height,
                 type: p.type // 'normal' or 'stink_ray'
             })),
-            score: score
+            score: score,
+            events: currentFrameEvents
         });
         // --- REPLAY RECORDING END ---
 
@@ -2268,7 +2289,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetGameToMenu() {
         isGameOver = true; 
         isPaused = false;
-        
+        eventsQueue = [];
+
         if (gameLoopId) cancelAnimationFrame(gameLoopId);
         if (scoreIntervalId) clearInterval(scoreIntervalId);
         if (bgm && !bgm.paused) bgm.pause();

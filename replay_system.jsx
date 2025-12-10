@@ -1,8 +1,8 @@
-import { jsxDEV } from "react/jsx-dev-runtime";
-import React from "react";
+import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
+import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { Player } from "@websim/remotion/player";
-import { AbsoluteFill, useCurrentFrame, Img } from "remotion";
+import { AbsoluteFill, useCurrentFrame, Img, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 const ReplayScene = ({ frameData, staticData }) => {
@@ -148,11 +148,56 @@ const ReplayComposition = ({ replayData, staticData }) => {
   const frame = useCurrentFrame();
   const index = Math.min(Math.floor(frame), replayData.length - 1);
   const currentFrameData = replayData[Math.max(0, index)];
+  const audioEvents = useMemo(() => {
+    const events = [];
+    replayData.forEach((data, frameIndex) => {
+      if (data.events && data.events.length > 0) {
+        data.events.forEach((eventType) => {
+          events.push({ frame: frameIndex, type: eventType });
+        });
+      }
+    });
+    return events;
+  }, [replayData]);
+  const SOUND_URLS = {
+    shoot: "/player_shoot.mp3",
+    hit: "/player_hit.mp3",
+    stink_fire: "/stink_ray_fire.mp3",
+    heal: "/heal_pickup.mp3",
+    splash: "/player_hit.mp3",
+    // Reusing hit sound for splash as per script
+    shop_purchase: "/shop_purchase.mp3"
+    // Just in case
+  };
   if (!currentFrameData) return null;
-  return /* @__PURE__ */ jsxDEV(ReplayScene, { frameData: currentFrameData, staticData }, void 0, false, {
+  return /* @__PURE__ */ jsxDEV(Fragment, { children: [
+    staticData.bgmSrc && /* @__PURE__ */ jsxDEV(Audio, { src: staticData.bgmSrc, volume: 0.25, loop: true }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 170,
+      columnNumber: 17
+    }),
+    audioEvents.map((evt, i) => {
+      const src = SOUND_URLS[evt.type];
+      if (!src) return null;
+      return /* @__PURE__ */ jsxDEV(Sequence, { from: evt.frame, durationInFrames: 60, children: /* @__PURE__ */ jsxDEV(Audio, { src, volume: 0.6 }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 177,
+        columnNumber: 25
+      }) }, `sfx-${i}`, false, {
+        fileName: "<stdin>",
+        lineNumber: 176,
+        columnNumber: 21
+      });
+    }),
+    /* @__PURE__ */ jsxDEV(ReplayScene, { frameData: currentFrameData, staticData }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 181,
+      columnNumber: 13
+    })
+  ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 146,
-    columnNumber: 12
+    lineNumber: 168,
+    columnNumber: 9
   });
 };
 let root = null;
@@ -181,13 +226,13 @@ function mountReplay(containerId, replayData, staticData) {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 164,
+        lineNumber: 201,
         columnNumber: 13
       },
       this
     ) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 163,
+      lineNumber: 200,
       columnNumber: 9
     }, this)
   );
