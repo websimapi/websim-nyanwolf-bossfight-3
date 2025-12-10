@@ -1,0 +1,1573 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #1a1a2e; /* Dark space blue */
+    font-family: 'Orbitron', sans-serif; /* Sci-fi font */
+    color: white;
+    overflow: hidden;
+    touch-action: none;
+}
+
+/* --- Animations --- */
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 15px #ff4136, 0 0 30px #ff4136aa; }
+    50% { transform: scale(1.03); box-shadow: 0 0 25px #ff4136, 0 0 45px #ff4136aa; }
+    100% { transform: scale(1); box-shadow: 0 0 15px #ff4136, 0 0 30px #ff4136aa; }
+}
+
+@keyframes nyanPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 10px #00ff7f) drop-shadow(0 0 5px #ff00ff); }
+    50% { transform: scale(1.03); filter: drop-shadow(0 0 20px #00ff7f) drop-shadow(0 0 10px #ff00ff) drop-shadow(0 0 15px #ffffffaa); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 10px #00ff7f) drop-shadow(0 0 5px #ff00ff); }
+}
+
+@keyframes nyanPulseSummer {
+    0% { transform: scale(1); filter: drop-shadow(0 0 10px #00c6ff) drop-shadow(0 0 8px #ffdd57); }
+    50% { transform: scale(1.03); filter: drop-shadow(0 0 20px #00c6ff) drop-shadow(0 0 12px #ffdd57) drop-shadow(0 0 15px #ffffffaa); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 10px #00c6ff) drop-shadow(0 0 8px #ffdd57); }
+}
+
+@keyframes thrusterAnimation {
+    0% { transform: scaleY(1) translateY(0); opacity: 0.7; }
+    50% { transform: scaleY(1.3) translateY(2px); opacity: 1; }
+    100% { transform: scaleY(1) translateY(0); opacity: 0.7; }
+}
+
+@keyframes hitSparkAnimation {
+    0% { transform: scale(0.5); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes waterSplashAnimation {
+    0% { transform: scale(0.5); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes fadeInPrompt {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInGlow {
+    0% { opacity: 0; text-shadow: 0 0 5px #fff; }
+    100% { opacity: 1; text-shadow: 0 0 20px #fff, 0 0 30px #0074D9, 0 0 40px #0074D9; }
+}
+
+@keyframes textPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* --- Splash Screen --- */
+#splash-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #1a1a2e, #16223f);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 500; /* Highest z-index to be on top */
+    cursor: pointer;
+}
+
+#splash-logo {
+    width: 350px;
+    margin-bottom: -20px;
+}
+
+#splash-summer-banner {
+    width: 320px;
+    filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.5));
+    margin-bottom: 20px;
+}
+
+#splash-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 42px;
+    color: #ffdd57;
+    text-shadow: 3px 3px #c42a1e, 0 0 15px #ff4136;
+    margin-bottom: 20px;
+}
+
+#splash-boss-img {
+    width: 250px;
+    height: auto;
+    margin-bottom: 20px;
+    animation: nyanPulse 1.5s infinite ease-in-out;
+}
+
+#splash-prompt-text {
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 0 10px #fff;
+    opacity: 0; /* Start invisible */
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+    animation: textPulse 2s infinite ease-in-out;
+}
+
+/* --- Menu Screen --- */
+#menu-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #1a1a2e, #16223f);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    transition: background 0.5s ease-in-out;
+}
+
+#summer-event-banner {
+    position: absolute;
+    top: 10px;
+    width: 350px;
+    filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.5));
+    z-index: 202;
+}
+
+#summer-event-sun {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 100px;
+    z-index: 201;
+    filter: drop-shadow(0 0 10px #ffd700);
+}
+
+#menu-logo {
+    width: 300px;
+    margin-bottom: -20px; /* Overlap with title slightly */
+}
+
+#menu-title {
+    font-family: 'Press Start 2P', cursive; /* Pixel font */
+    font-size: 36px; /* Adjusted for new font and potentially longer title */
+    color: #ffdd57; /* Goldish yellow */
+    text-shadow: 3px 3px #c42a1e, 0 0 15px #ff4136;
+    margin-bottom: 25px;
+    line-height: 1.2;
+}
+
+#menu-boss-img {
+    width: 220px; 
+    height: auto;
+    margin-bottom: 30px;
+    border: 5px solid #00ff7f; /* Nyanwolf green */
+    border-radius: 15px;
+    box-shadow: 0 0 20px #ff00ff; /* Nyanwolf pink */
+}
+
+#difficulty-selection {
+    display: flex;
+    flex-direction: column; 
+    gap: 15px; 
+    margin-top: 20px;
+    align-items: center; 
+}
+
+.difficulty-button {
+    padding: 16px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    min-width: 220px; /* Ensure buttons have a decent width */
+}
+
+.utility-button {
+    padding: 12px 25px; /* Slightly smaller padding */
+    font-size: 16px; /* Slightly smaller font */
+    min-width: 200px; /* Adjusted min-width */
+}
+
+#start-game-button {
+    background: linear-gradient(145deg, #007bff, #0056b3); /* Blue theme */
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4), 0 3px #004085;
+}
+#start-game-button:hover {
+    background: linear-gradient(145deg, #0069d9, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.5), 0 3px #003366;
+}
+#start-game-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3), 0 1px #003366;
+}
+
+#secret-mode-button {
+    background: linear-gradient(145deg, #ff4136, #d63031); /* Red theme */
+    box-shadow: 0 5px 15px rgba(255, 65, 54, 0.4), 0 3px #b22222;
+    margin-top: 15px; 
+}
+#secret-mode-button:hover {
+    background: linear-gradient(145deg, #e03026, #b22222);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 65, 54, 0.5), 0 3px #800000;
+}
+#secret-mode-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(255, 65, 54, 0.3), 0 1px #800000;
+}
+
+#progress-reset-button {
+    background: linear-gradient(145deg, #f0ad4e, #eea236); /* Warning orange */
+    box-shadow: 0 5px 15px rgba(240, 173, 78, 0.4), 0 3px #d58512;
+}
+
+#progress-reset-button:hover {
+    background: linear-gradient(145deg, #ec971f, #d58512);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(240, 173, 78, 0.5), 0 3px #ac670a;
+}
+
+#progress-reset-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(240, 173, 78, 0.3), 0 1px #ac670a;
+}
+
+#shop-button {
+    background: linear-gradient(145deg, #563d7c, #483267); /* Purple theme for shop */
+    box-shadow: 0 5px 15px rgba(86, 61, 124, 0.4), 0 3px #3a2754;
+}
+
+#shop-button:hover {
+    background: linear-gradient(145deg, #483267, #3a2754);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(86, 61, 124, 0.5), 0 3px #2d1e41;
+}
+
+#shop-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(86, 61, 124, 0.3), 0 1px #2d1e41;
+}
+
+#strategy-book-menu-button {
+    background: linear-gradient(145deg, #17a2b8, #117a8b); /* Info/Teal color */
+    box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4), 0 3px #0f6674;
+}
+
+#strategy-book-menu-button:hover {
+    background: linear-gradient(145deg, #138496, #0f6674);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(23, 162, 184, 0.5), 0 3px #0c5460;
+}
+
+#strategy-book-menu-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(23, 162, 184, 0.3), 0 1px #0c5460;
+}
+
+#changelog-button {
+    background: linear-gradient(145deg, #6c757d, #5a6268); /* Neutral gray */
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3), 0 3px #495057;
+}
+
+#changelog-button:hover {
+    background: linear-gradient(145deg, #5a6268, #495057);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4), 0 3px #343a40;
+}
+
+#changelog-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(108, 117, 125, 0.2), 0 1px #343a40;
+}
+
+#minigames-button {
+    background: linear-gradient(145deg, #28a745, #1e7e34); /* Green theme for minigames */
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4), 0 3px #155724;
+}
+#minigames-button:hover {
+    background: linear-gradient(145deg, #218838, #155724);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.5), 0 3px #0e3e1a;
+}
+#minigames-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3), 0 1px #0e3e1a;
+}
+
+/* --- Cutscene --- */
+#cutscene-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 250;
+    color: white;
+    font-size: 26px; 
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+#cutscene-text {
+    margin-bottom: 30px;
+    max-width: 80%;
+    font-size: clamp(20px, 3vw, 32px); /* Responsive font size */
+    line-height: 1.5;
+    text-shadow: 0 0 8px #fff, 0 0 15px #00ff7f; /* Added green glow */
+}
+
+#cutscene-image {
+    max-width: 250px;
+    max-height: 250px;
+    height: auto;
+    border: 4px solid #00ff7f; /* Nyanwolf green */
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 15px #ff00ff; /* Nyanwolf pink */
+}
+
+#skip-cutscene-button {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: 'Orbitron', sans-serif;
+    color: #ccc;
+    background-color: rgba(50, 50, 50, 0.7);
+    border: 1px solid #888;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    z-index: 260;
+}
+
+#skip-cutscene-button:hover {
+    background-color: rgba(80, 80, 80, 0.9);
+    color: white;
+    border-color: white;
+}
+
+/* --- Shop Screen --- */
+#shop-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align items to the top */
+    padding: 20px;
+    box-sizing: border-box;
+    width: 800px; /* Match game width */
+    height: 600px; /* Match game height */
+    background-color: #2c2c44; /* Dark, solid background color */
+    background-size: cover;
+    background-position: center;
+    border: 5px solid #563d7c; /* Shop purple border */
+    box-shadow: 0 0 25px #563d7caa, 0 0 40px #563d7caa inset;
+    position: absolute; /* To overlay menu or game */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 300; /* Above menu */
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    overflow-y: auto;
+}
+
+#shopkeeper-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #ffdd57; /* Gold border */
+    margin-bottom: 10px;
+    margin-top: 10px;
+    object-fit: cover;
+    box-shadow: 0 0 15px #ffdd57;
+}
+
+#shop-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 32px;
+    color: #ffdd57; /* Gold */
+    text-shadow: 2px 2px #c42a1e;
+    margin-bottom: 15px;
+}
+
+#currency-display {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 8px 15px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 8px;
+    border: 1px solid #ffdd57;
+}
+
+#currency-display span {
+    font-size: 16px;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.currency-icon {
+    width: 24px;
+    height: 24px;
+    margin-left: -10px; /* Pull icon closer to text */
+    margin-right: 5px;
+}
+
+#shop-greeting {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #eee;
+    text-align: center;
+}
+
+#shop-items-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+    gap: 20px;
+    width: 95%;
+    max-height: 300px; /* Limit height and allow scroll */
+    overflow-y: auto;
+    padding: 10px;
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.shop-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid #7f7f9e; /* Muted purple */
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    position: relative; /* For summer event tag */
+}
+
+.summer-event-item {
+    border-color: #00c6ff; /* Bright blue for summer items */
+    box-shadow: 0 0 10px #00c6ff55;
+}
+
+.summer-event-item::after {
+    content: 'SUMMER EVENT';
+    position: absolute;
+    top: 10px;
+    right: -35px;
+    background-color: #ffdd57; /* Sunny yellow */
+    color: #0056b3; /* Dark blue text */
+    padding: 3px 30px;
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+    transform: rotate(45deg);
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    z-index: 1; /* ADDED */
+}
+
+.shop-item-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.2); /* Slight bg for transparent images */
+}
+
+.shop-item-name {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    color: #ffdd57;
+    margin-bottom: 5px;
+}
+
+.shop-item-description {
+    font-size: 12px;
+    color: #ccc;
+    margin-bottom: 10px;
+    min-height: 30px; /* Ensure some space for description */
+}
+
+.shop-item-cost {
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.shop-item-cost .currency-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.shop-button, .shop-item-button {
+    padding: 10px 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    margin-top: auto; /* Push button to bottom of card */
+}
+
+.shop-item-button.buy {
+    background: linear-gradient(145deg, #28a745, #1e7e34); /* Green */
+    box-shadow: 0 3px #155724;
+}
+.shop-item-button.buy:hover {
+    background: linear-gradient(145deg, #218838, #155724);
+}
+
+.shop-item-button.equip {
+    background: linear-gradient(145deg, #007bff, #0056b3); /* Blue */
+    box-shadow: 0 3px #004085;
+}
+.shop-item-button.equip:hover {
+    background: linear-gradient(145deg, #0069d9, #004085);
+}
+
+.shop-item-button.view-guide {
+    background: linear-gradient(145deg, #17a2b8, #117a8b); /* Info/Teal color */
+    box-shadow: 0 3px #0f6674;
+}
+.shop-item-button.view-guide:hover {
+    background: linear-gradient(145deg, #138496, #0f6674);
+}
+
+.shop-item-button.equipped {
+    background: linear-gradient(145deg, #6c757d, #495057); /* Grey */
+    box-shadow: 0 3px #343a40;
+    cursor: default;
+}
+
+.shop-item-button.locked {
+    background: linear-gradient(145deg, #5a6268, #40464b); /* Darker Grey */
+    box-shadow: 0 3px #343a40;
+    cursor: not-allowed;
+    color: #aaa;
+}
+
+.shop-item-button:disabled {
+    background: linear-gradient(145deg, #999, #777);
+    cursor: not-allowed;
+    box-shadow: 0 3px #555;
+}
+
+#shop-back-to-menu-button {
+    background: linear-gradient(145deg, #ff4136, #d63031); /* Red */
+    box-shadow: 0 4px #b22222;
+    margin-top: 20px;
+}
+#shop-back-to-menu-button:hover {
+    background: linear-gradient(145deg, #e03026, #b22222);
+}
+
+.shop-message {
+    min-height: 20px; /* Reserve space for messages */
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-family: 'Press Start 2P', cursive;
+    color: #ffdd57; /* Default gold for positive messages */
+    text-align: center;
+}
+
+.shop-message.error {
+    color: #ff4136; /* Red for error messages */
+}
+
+/* --- Strategy Book Modal --- */
+#strategy-book-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 25px;
+    box-sizing: border-box;
+    width: 80vw;
+    max-width: 750px;
+    height: 80vh;
+    max-height: 550px;
+    background-color: #1f1f33; /* Darker, slightly different from shop */
+    border: 4px solid #17a2b8; /* Teal border */
+    box-shadow: 0 0 30px #17a2b8aa, 0 0 50px #17a2b8aa inset;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 400; /* Above shop */
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    border-radius: 15px;
+}
+
+#strategy-book-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 28px;
+    color: #17a2b8; /* Teal */
+    text-shadow: 2px 2px #0c5460;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#strategy-book-content-container {
+    width: 95%;
+    flex-grow: 1;
+    background-color: rgba(0,0,0,0.4);
+    border: 1px solid #138496;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+#strategy-book-text {
+    font-family: 'Orbitron', sans-serif; /* Or 'monospace' for better alignment if needed */
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e0e0e0;
+    white-space: pre-wrap; /* Allows wrapping and respects newlines */
+    margin: 0;
+}
+
+#strategy-book-close-button {
+    background: linear-gradient(145deg, #138496, #0f6674); /* Darker Teal */
+    box-shadow: 0 4px #0c5460;
+}
+#strategy-book-close-button:hover {
+    background: linear-gradient(145deg, #117a8b, #0c5460);
+}
+
+/* --- Changelog Modal --- */
+#changelog-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    padding: 25px;
+    box-sizing: border-box;
+    width: 80vw;
+    max-width: 750px;
+    height: 80vh;
+    max-height: 550px;
+    background-color: #1e1e2f; /* Slightly different dark blue */
+    border: 4px solid #6c757d; /* Neutral gray border */
+    box-shadow: 0 0 30px #6c757daa, 0 0 50px #6c757daa inset;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 400; /* Same as strategy book, or higher if it can overlap */
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    border-radius: 15px;
+}
+
+#changelog-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 28px;
+    color: #b0b0b0; /* Light gray for title */
+    text-shadow: 2px 2px #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#changelog-content-container {
+    width: 95%;
+    flex-grow: 1;
+    background-color: rgba(0,0,0,0.5);
+    border: 1px solid #495057;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+#changelog-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    line-height: 1.7; /* Slightly more spacing for readability */
+    color: #d0d0d0;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+#changelog-text strong { /* For version numbers or highlights */
+    color: #ffdd57; /* Gold */
+    font-family: 'Press Start 2P', cursive;
+}
+
+#changelog-close-button {
+    background: linear-gradient(145deg, #5a6268, #495057); /* Darker gray */
+    box-shadow: 0 4px #343a40;
+    font-family: 'Orbitron', sans-serif; /* Ensure font consistency */
+}
+#changelog-close-button:hover {
+    background: linear-gradient(145deg, #495057, #343a40);
+}
+
+/* --- Game Container --- */
+#game-container {
+    width: 800px;
+    height: 600px;
+    background-color: #1a1a2e; /* Fallback color */
+    background-image: url('/game_background.png');
+    background-size: cover;
+    background-position: center;
+    border: 5px solid #00c6ff; /* Neon blue border */
+    box-shadow: 0 0 25px #00c6ff, 0 0 40px #00c6ff inset;
+    position: relative;
+    overflow: hidden;
+}
+
+#game-ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Allow clicks to pass through to elements below that need them (like pause button) */
+}
+#game-ui-layer > * {
+    pointer-events: auto; /* Re-enable pointer events for UI children */
+}
+
+#game-world-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#effects-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allows clicks to pass through */
+    z-index: 5; /* Above player/boss, below UI */
+}
+
+.hit-spark {
+    position: absolute;
+    width: 30px; /* Adjust size as needed */
+    height: 30px;
+    background-image: url('/hit_spark.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: hitSparkAnimation 0.3s ease-out forwards;
+}
+
+.water-splash {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-image: url('/water_splash.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: waterSplashAnimation 0.3s ease-out forwards;
+    z-index: 6; /* Ensure it's above other game world elements */
+}
+
+.player-projectile {
+    position: absolute;
+    width: 8px; 
+    height: 20px; 
+    background-color: #00ffea; /* Cyan laser */
+    border-radius: 4px; 
+    box-shadow: 0 0 8px #00ffea, 0 0 15px #00ffea, 0 0 5px #fff inset; 
+}
+
+.stink-ray-projectile {
+    position: absolute;
+    /* width will be set by JS (STINK_RAY_PROJECTILE_WIDTH) */
+    /* height will be set by JS (STINK_RAY_PROJECTILE_HEIGHT) */
+    background-image: url('/stink_ray_projectile.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Optional: add a subtle glow */
+    filter: drop-shadow(0 0 5px #6DD400) drop-shadow(0 0 10px #A8FF78);
+}
+
+.heal-item {
+    position: absolute;
+    width: 40px; 
+    height: 40px; 
+    /* background-image will be set by JS */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 4; 
+    filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 15px #ffaa00); /* Golden glow, apple might get this too or need adjustment */
+}
+
+#player {
+    position: absolute;
+    width: 50px; 
+    height: 50px; 
+    background-image: url('/Bluecheeses_1_2048x.webp'); 
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center;
+    box-sizing: border-box;
+    z-index: 3; /* Player is above boss */
+}
+
+#player-thruster {
+    display: none; 
+    position: absolute;
+    bottom: -8px; 
+    left: 50%;
+    transform-origin: center top;
+    width: 10px;
+    height: 15px;
+    background-color: #ffcc00; 
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffaa00;
+    opacity: 0.7;
+    animation: thrusterAnimation 0.15s infinite linear;
+    margin-left: -5px; 
+}
+
+#boss {
+    position: absolute;
+    width: 150px; 
+    height: 150px; 
+    background-image: url('/nyanwolf-neutral-no-background.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: filter 0.1s ease-out; 
+    animation: nyanPulse 1.5s infinite ease-in-out; /* Nyanwolf pulsing animation */
+    z-index: 2; /* Boss is behind player */
+}
+
+.projectile {
+    position: absolute;
+    width: 50px; 
+    height: 50px; 
+    background-image: url('/Pizza-LP-24-Pepperoni_Copy-1.png'); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 4; /* Projectiles are above boss/player but below effects */
+}
+
+.water-projectile {
+    /* No special styles needed now, but class is here for future use */
+}
+
+#score-display {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 3px #000;
+    z-index: 10;
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* Health Bars common styling */
+.health-bar-wrapper {
+    position: absolute;
+    height: 22px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #444;
+    border-radius: 5px;
+    padding: 2px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5) inset;
+    z-index: 10;
+    display: flex; /* For label alignment */
+    align-items: center; /* For label alignment */
+}
+
+.health-bar-bg {
+    height: 100%;
+    background-color: #333; /* Darker background for the bar track */
+    border-radius: 3px;
+    overflow: hidden; /* Ensure bar stays within rounded corners */
+    flex-grow: 1; /* Make the bar background take available space */
+}
+
+.health-bar-fill {
+    height: 100%;
+    transition: width 0.2s linear;
+    border-radius: 3px 0 0 3px; /* Round left corners, right if full */
+}
+
+.health-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+    margin-left: 10px; /* Space between bar and label */
+    white-space: nowrap;
+}
+
+#player-health-container {
+    position: absolute;
+    bottom: 15px;
+    left: 20px;
+    width: 220px; /* Increased width for label */
+    height: 28px;
+    background-color: rgba(0,0,0,0.3);
+    border: 2px solid #00c6ff;
+    border-radius: 8px;
+    padding: 3px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+}
+#player-health-bar-bg {
+    flex-grow: 1;
+    height: 100%;
+    background-color: #2a2a2a;
+    border-radius: 5px;
+}
+#player-health-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #00ff00, #7fff00);
+    transition: width 0.2s linear;
+    border-radius: 5px;
+}
+#player-health-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11; /* Above bar */
+}
+
+#player-charge-container {
+    position: absolute;
+    bottom: 60px; /* Positioned above player health bar slightly */
+    left: 20px;
+    width: 180px; 
+    height: 18px;
+    background-color: rgba(10,20,10,0.4); /* Dark green tint */
+    border: 2px solid #A8FF78; /* Lighter stinky green */
+    border-radius: 5px;
+    padding: 2px;
+    z-index: 10;
+    display: flex; 
+    align-items: center;
+    box-shadow: 0 0 8px #A8FF78aa;
+}
+#player-charge-bar-bg {
+    flex-grow: 1;
+    height: 100%;
+    background-color: #1a2a1a; /* Very dark green */
+    border-radius: 3px;
+}
+#player-charge-bar {
+    width: 0%; /* Starts empty */
+    height: 100%;
+    background: linear-gradient(to right, #6DD400, #A8FF78); /* Stinky green gradient */
+    transition: width 0.05s linear; /* Faster transition for smoother fill */
+    border-radius: 3px;
+}
+#player-charge-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 7px;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+    position: absolute; /* Positioned within the container */
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11; /* Above bar fill */
+    pointer-events: none; /* Allow clicks through label */
+}
+
+#boss-health-container {
+    position: absolute;
+    top: 15px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px; /* Increased width for label */
+    height: 30px;
+    background-color: rgba(0,0,0,0.3);
+    border: 2px solid #00ff7f; /* Nyanwolf green border */
+    border-radius: 8px;
+    padding: 3px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+}
+#boss-health-bar-bg {
+    flex-grow: 1;
+    height: 100%;
+    background-color: #2a2a2a; /* Very dark green */
+    border-radius: 5px;
+}
+#boss-health-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #00ff7f, #ff00ff); /* Nyanwolf green to pink gradient */
+    transition: width 0.2s linear;
+    border-radius: 5px;
+}
+#boss-health-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 11; /* Above bar */
+}
+
+#game-over-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(10, 0, 0, 0.88);
+    display: none; /* Changed from flex */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 100;
+    animation: fadeInGlow 1s ease-out forwards;
+}
+
+#game-over-boss-img {
+    width: 180px; 
+    height: auto;
+    margin-bottom: 20px;
+    border: 4px solid #ff00ff; /* Nyanwolf pink border for loss screen */
+    border-radius: 10px;
+    box-shadow: 0 0 15px #00ff7f; /* Nyanwolf green shadow for loss screen */
+}
+
+#game-over-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 38px; /* Adjusted */
+    margin-bottom: 15px;
+    /* color is set by JS based on win/loss */
+    text-shadow: 3px 3px #000, 0 0 10px currentColor; /* Use currentColor for dynamic shadow */
+}
+
+#game-over-screen p { 
+    font-size: 20px;
+    margin-bottom: 30px;
+    color: #eee; 
+    text-shadow: 1px 1px 2px #000;
+}
+
+#restart-button {
+    padding: 15px 30px;
+    font-size: 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(145deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.35), 0 2px #004085;
+    text-transform: uppercase;
+}
+
+#restart-button:hover {
+    background: linear-gradient(145deg, #0069d9, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 123, 255, 0.45), 0 2px #003366;
+}
+
+#restart-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3), 0 1px #003366;
+}
+
+#back-to-menu-button {
+    padding: 15px 30px;
+    font-size: 18px; 
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(145deg, #6c757d, #495057); 
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.35), 0 2px #343a40;
+    text-transform: uppercase;
+    margin-top: 15px; 
+}
+
+#back-to-menu-button:hover {
+    background: linear-gradient(145deg, #5a6268, #343a40);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(108, 117, 125, 0.45), 0 2px #23272b;
+}
+
+#back-to-menu-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3), 0 1px #23272b;
+}
+
+#pause-button {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    background-color: #ff9900; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 150; 
+    box-shadow: 0 3px #cc7a00;
+    transition: background-color 0.2s, transform 0.1s;
+    text-transform: uppercase;
+}
+
+#pause-button:hover {
+    background-color: #e68a00;
+}
+
+#pause-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px #cc7a00;
+}
+
+#pause-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); 
+    display: flex; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 190; 
+    color: white;
+}
+
+#pause-screen h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 60px; 
+    margin-bottom: 30px;
+    text-shadow: 3px 3px #000;
+    color: #ff9900; 
+}
+
+#resume-button {
+    padding: 18px 35px;
+    font-size: 22px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(145deg, #28a745, #1e7e34); 
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4), 0 3px #155724;
+    text-transform: uppercase;
+}
+
+#resume-button:hover {
+    background: linear-gradient(145deg, #218838, #155724);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.5), 0 3px #0e3e1a;
+}
+
+#resume-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3), 0 1px #0e3e1a;
+}
+
+/* --- Mobile Controls --- */
+#mobile-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 160px; 
+    pointer-events: none; 
+    z-index: 50; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px; 
+    box-sizing: border-box;
+}
+
+#joystick-container {
+    width: 130px; 
+    height: 130px;
+    position: relative; 
+    pointer-events: auto; 
+    border-radius: 50%;
+}
+
+#mobile-shoot-button {
+    width: 90px; 
+    height: 90px;
+    background-color: #ff4136; 
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    border: 3px solid white;
+    border-radius: 50%; 
+    cursor: pointer;
+    pointer-events: auto; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    user-select: none; 
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    box-shadow: 0 5px #cc342c, 0 0 15px #ff4136;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
+    text-transform: uppercase;
+}
+
+#mobile-shoot-button:active {
+    background-color: #e03026;
+    transform: translateY(2px) scale(0.95);
+    box-shadow: 0 2px #cc342c, 0 0 10px #ff4136;
+}
+
+.nipple {
+    opacity: 0.6 !important; 
+    z-index: 51 !important; 
+}
+
+.front {
+    background-color: rgba(200, 200, 200, 0.8) !important; 
+    box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* Ensure player thruster is hidden if player is hidden */
+#player[style*="display: none;"] #player-thruster {
+    display: none;
+}
+
+/* --- Minigames Menu --- */
+#minigames-menu-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 800px;
+    height: 600px;
+    background: linear-gradient(to bottom, #1e7e34, #155724);
+    border: 5px solid #28a745;
+    box-shadow: 0 0 25px #28a745aa, 0 0 40px #28a745aa inset;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 290; /* Below shop */
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    gap: 30px;
+}
+
+#minigames-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 48px;
+    color: #fff;
+    text-shadow: 3px 3px #104d1b;
+}
+
+#minigames-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.minigame-select-button {
+    padding: 16px 40px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    background: linear-gradient(145deg, #007bff, #0056b3);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4), 0 3px #004085;
+}
+.minigame-select-button:hover {
+    background: linear-gradient(145deg, #0069d9, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.5), 0 3px #003366;
+}
+
+/* --- Gardens Minigame --- */
+#gardens-game-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 600px;
+    background-image: url('/garden_background.png');
+    background-size: cover;
+    background-position: center;
+    border: 5px solid #563d7c;
+    box-shadow: 0 0 25px #563d7caa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#gardens-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: flex-end;
+    margin-top: 50px;
+}
+
+#player-garden-area, #nyanwolf-garden-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.garden-character {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: -10px;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+}
+
+.garden-plot {
+    width: 200px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.garden-plot img {
+    max-width: 100%;
+    max-height: 100%;
+    transition: transform 0.5s ease-out, filter 0.5s ease-out;
+}
+
+.garden-score {
+    margin-top: 10px;
+    font-size: 18px;
+    color: white;
+    text-shadow: 2px 2px 2px #333;
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+#watering-minigame-ui {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    visibility: hidden; /* Controlled by JS */
+}
+
+#timing-bar-container {
+    width: 60%;
+    height: 40px;
+    background-color: rgba(0,0,0,0.6);
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+#timing-bar {
+    width: 100%;
+    height: 100%;
+    background-color: #333;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+#timing-bar-cursor {
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    background-color: #00c6ff;
+    box-shadow: 0 0 8px #00c6ff;
+    left: 0;
+}
+
+.timing-bar-zone {
+    position: absolute;
+    height: 100%;
+    top: 0;
+}
+
+.timing-bar-zone.good {
+    width: 30%;
+    left: 35%;
+    background-color: rgba(255, 221, 87, 0.5); /* Yellow */
+}
+
+.timing-bar-zone.perfect {
+    width: 10%;
+    left: 45%;
+    background-color: rgba(40, 167, 69, 0.6); /* Green */
+}
+
+#water-button {
+    padding: 15px 30px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 20px;
+    background-color: #007bff;
+    color: white;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px #0056b3;
+    transition: all 0.1s;
+}
+
+#water-button:disabled {
+    background-color: #6c757d;
+    box-shadow: 0 4px #495057;
+    cursor: not-allowed;
+}
+
+#water-button:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px #0056b3;
+}
+
+#gardens-info-text {
+    position: absolute;
+    bottom: 150px;
+    font-size: 22px;
+    color: white;
+    text-shadow: 2px 2px 3px black;
+    text-align: center;
+    width: 80%;
+}
+
+#gardens-result-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 500;
+    gap: 20px;
+}
+
+#gardens-result-title {
+    font-size: 42px;
+    color: #ffdd57;
+    text-shadow: 3px 3px #c42a1e;
+}
+
+#gardens-result-message {
+    font-size: 20px;
+    color: white;
+    line-height: 1.5;
+    max-width: 80%;
+}
+
+#gardens-play-again-button, #gardens-back-to-menu-button {
+    padding: 12px 25px;
+    font-size: 18px;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#gardens-play-again-button {
+    background: linear-gradient(145deg, #28a745, #1e7e34);
+    color: white;
+    box-shadow: 0 4px #155724;
+}
+
+#gardens-back-to-menu-button {
+    background: linear-gradient(145deg, #6c757d, #5a6268);
+    color: white;
+    box-shadow: 0 4px #495057;
+}

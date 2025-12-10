@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nyanwolf Bossfight</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+      "imports": {
+        "nipplejs": "https://esm.sh/nipplejs@0.10.1",
+        "react": "https://esm.sh/react@18.3.1?dev",
+        "react-dom": "https://esm.sh/react-dom@18.3.1?dev",
+        "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?dev",
+        "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime?dev",
+        "react/jsx-dev-runtime": "https://esm.sh/react@18.3.1/jsx-dev-runtime?dev",
+        "remotion": "https://esm.sh/remotion@4.0.350?external=react,react-dom&dev",
+        "@remotion/player": "https://esm.sh/@remotion/player@4.0.350?external=react,react-dom&dev",
+        "@remotion/gif": "https://esm.sh/@remotion/gif@4.0.350?external=react,react-dom,remotion&dev",
+        "@remotion/transitions": "https://esm.sh/@remotion/transitions@4.0.350?external=react,react-dom,remotion&dev",
+        "@websim/remotion/player": "https://esm.websim.com/@websim/remotion/player",
+        "mediabunny": "https://esm.sh/mediabunny@1.19.1"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div id="splash-screen">
+        <img id="splash-logo" src="/cooltext483247959599869.gif" alt="Slop Project">
+        <h1 id="splash-title">Nyanwolf Bossfight</h1>
+        <img id="splash-boss-img" src="/nyanwolf-neutral-no-background.png" alt="Nyanwolf Boss">
+        <p id="splash-prompt-text">Click anywhere to continue</p>
+    </div>
+
+    <div id="menu-screen" style="display: none;">
+        <img id="summer-event-sun" src="/sun_icon.png" alt="Summer Sun" style="display: none;">
+        <img id="summer-event-banner" src="/summer_event_banner.png" alt="Summer Event" style="display: none;">
+        <img id="menu-logo" src="/cooltext483247959599869.gif" alt="Slop Project">
+        <h1 id="menu-title">Nyanwolf Bossfight</h1>
+        <img id="menu-boss-img" src="/nyanwolf-neutral-no-background.png" alt="Nyanwolf Boss">
+        <div id="difficulty-selection">
+            <button id="start-game-button" class="difficulty-button">Start Game</button>
+            <button id="secret-mode-button" class="difficulty-button" style="display: none;">DON'T TOUCH MY PIZZA</button>
+            <button id="shop-button" class="difficulty-button utility-button">Shop</button>
+            <button id="minigames-button" class="difficulty-button utility-button">Minigames</button>
+            <button id="strategy-book-menu-button" class="difficulty-button utility-button" style="display: none;">Strategy Guide</button>
+            <button id="changelog-button" class="difficulty-button utility-button">Changelog</button>
+            <button id="progress-reset-button" class="difficulty-button utility-button">Reset Progress</button>
+        </div>
+    </div>
+
+    <div id="cutscene-container" style="display: none;">
+        <p id="cutscene-text"></p>
+        <img id="cutscene-image" src="" alt="Cutscene Image" style="display: none;">
+        <button id="skip-cutscene-button">Skip Cutscene &raquo;</button>
+    </div>
+
+    <div id="shop-screen" style="display: none;">
+        <img id="shopkeeper-img" src="/C00lkidd_but_Fresh (1).png" alt="Shopkeeper C00lkid">
+        <h1 id="shop-title">C00lkid's Shop!</h1>
+        <div id="currency-display">
+            <span id="token-count">Tokens: 0</span>
+            <img src="/token.png" alt="Token" class="currency-icon">
+            <span id="pizza-count">Pizzas: 0</span>
+            <img src="/pizza_icon.png" alt="Pizza" class="currency-icon">
+        </div>
+        <div id="shop-greeting">Welcome! Check out these awesome Nyanwolf skins!</div>
+        <div id="shop-items-container">
+            <!-- Shop items will be populated here by JS -->
+        </div>
+        <div id="shop-message-area" class="shop-message"></div>
+        <button id="shop-back-to-menu-button" class="shop-button">Back to Menu</button>
+    </div>
+
+    <div id="strategy-book-modal" style="display: none;">
+        <h2 id="strategy-book-title">Nyanwolf Strategy Guide</h2>
+        <div id="strategy-book-content-container">
+            <pre id="strategy-book-text"></pre>
+        </div>
+        <button id="strategy-book-close-button" class="shop-button">Close</button>
+    </div>
+
+    <div id="changelog-modal" style="display: none;">
+        <h2 id="changelog-title">Game Updates</h2>
+        <div id="changelog-content-container">
+            <pre id="changelog-text"></pre>
+        </div>
+        <button id="changelog-close-button" class="shop-button">Close</button>
+    </div>
+
+    <div id="minigames-menu-screen" style="display: none;">
+        <h1 id="minigames-title">Minigames</h1>
+        <div id="minigames-selection">
+            <button id="gardens-game-button" class="minigame-select-button">Gardens</button>
+            <!-- More minigames could go here -->
+        </div>
+        <button id="minigames-back-button" class="shop-button">Back to Menu</button>
+    </div>
+
+    <div id="gardens-game-screen" style="display: none;">
+        <div id="gardens-container">
+            <div id="player-garden-area">
+                <img src="/C00lkidd_but_Fresh (1).png" class="garden-character" id="player-garden-avatar">
+                <div class="garden-plot" id="player-plot">
+                    <img id="player-carrot" src="/carrot_stage_0.png">
+                </div>
+                <div class="garden-score" id="player-garden-score">Size: 0</div>
+            </div>
+            <div id="nyanwolf-garden-area">
+                <img src="/nyanwolf-neutral-no-background.png" class="garden-character" id="nyanwolf-garden-avatar">
+                <div class="garden-plot" id="nyanwolf-plot">
+                    <img id="nyanwolf-carrot" src="/carrot_stage_0.png">
+                </div>
+                <div class="garden-score" id="nyanwolf-garden-score">Size: 0</div>
+            </div>
+        </div>
+
+        <div id="watering-minigame-ui">
+            <div id="timing-bar-container">
+                <div id="timing-bar">
+                    <div id="timing-bar-cursor"></div>
+                    <div class="timing-bar-zone good"></div>
+                    <div class="timing-bar-zone perfect"></div>
+                </div>
+            </div>
+            <button id="water-button">Water!</button>
+        </div>
+        
+        <div id="gardens-info-text"></div>
+
+        <div id="gardens-result-screen" style="display: none;">
+            <h2 id="gardens-result-title">Harvest Time!</h2>
+            <p id="gardens-result-message"></p>
+            <button id="gardens-play-again-button">Play Again</button>
+            <button id="gardens-back-to-menu-button">Back to Minigames</button>
+        </div>
+    </div>
+
+    <div id="game-container" style="display: none;">
+        <div id="game-ui-layer">
+            <div id="boss-health-container">
+                <div id="boss-health-bar-bg">
+                    <div id="boss-health-bar"></div>
+                </div>
+                <span id="boss-health-label">BOSS HEALTH</span>
+            </div>
+            <div id="player-health-container">
+                <div id="player-health-bar-bg">
+                    <div id="player-health-bar"></div>
+                </div>
+                <span id="player-health-label">PLAYER HEALTH</span>
+            </div>
+    
+            <div id="player-charge-container" style="display: none;">
+                <div id="player-charge-bar-bg">
+                    <div id="player-charge-bar"></div>
+                </div>
+                <span id="player-charge-label">STINK RAY</span>
+            </div>
+    
+            <div id="score-display">Score: 0</div>
+            <button id="pause-button" style="display: none;">Pause</button>
+        </div>
+
+        <div id="game-world-layer">
+            <div id="boss"></div>
+            <div id="player">
+                <div id="player-thruster"></div>
+            </div>
+            <div id="effects-layer"></div>
+        </div>
+
+        <div id="pause-screen" style="display: none;"> 
+            <h1>PAUSED</h1>
+            <button id="resume-button">Resume</button>
+            <button id="back-to-menu-button">Back to Menu</button>
+        </div>
+        
+        <!-- Mobile Controls Area -->
+        <div id="mobile-controls" style="display: none;">
+            <div id="joystick-container"></div>
+            <button id="mobile-shoot-button">SHOOT</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen" style="display: none;">
+        <img id="game-over-boss-img" src="/nyanwolf-neutral-no-background.png" alt="Nyanwolf Boss">
+        <h1 id="game-over-title">NYAN-NIHILATED!</h1>
+        <p id="game-over-message">Nyanwolf zips away, leaving a trail of defeat.</p>
+        <button id="restart-button">Try Again?</button>
+        <button id="watch-replay-button" class="difficulty-button" style="margin-top: 15px; background: linear-gradient(145deg, #663399, #4B0082); font-size: 16px;">Instant Replay</button>
+    </div>
+
+    <div id="replay-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+        <div id="replay-player-root" style="width: 800px; height: 600px; max-width: 95vw; max-height: 70vh; border: 2px solid #fff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);"></div>
+        <button id="close-replay-button" class="difficulty-button" style="margin-top: 20px; background: #dc3545; width: auto; min-width: 150px;">Close Replay</button>
+    </div>
+
+    <audio id="bgm" loop src="/ytmp3free.cc_mrfun-unregistered-hypercam-2-by-undertale-last-corridor-extra-youtubemp3free.org (1).mp3"></audio>
+    <script type="module" src="script.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
