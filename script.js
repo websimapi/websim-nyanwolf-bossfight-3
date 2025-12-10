@@ -2206,16 +2206,33 @@ document.addEventListener('DOMContentLoaded', () => {
         eventsQueue = []; // Clear queue for next frame
 
         replayData.push({
-            player: { x: player.x, y: player.y },
-            boss: { x: boss.x, y: boss.y },
+            player: { 
+                x: player.x, 
+                y: player.y, 
+                health: player.health,
+                maxHealth: currentPlayerMaxHealth,
+                isCharging: isChargingStinkRay,
+                chargeLevel: stinkRayChargeLevel
+            },
+            boss: { 
+                x: boss.x, 
+                y: boss.y, 
+                health: boss.health,
+                maxHealth: currentBossMaxHealth
+            },
+            healItem: healItem ? { 
+                x: healItem.x, 
+                y: healItem.y, 
+                width: healItem.width, 
+                height: healItem.height, 
+                type: healItem.type 
+            } : null,
             projectiles: projectiles.map(p => ({
                 x: p.x,
                 y: p.y,
                 width: p.width,
-                height: p.height
-                // Type is handled by static data for boss projectiles usually, 
-                // but if we support mixed types later we might need it. 
-                // For now, staticData.bossProjectileImage is used for all enemy projectiles in replay for simplicity.
+                height: p.height,
+                type: p.type
             })),
             playerProjectiles: playerProjectiles.map(p => ({
                 x: p.x,

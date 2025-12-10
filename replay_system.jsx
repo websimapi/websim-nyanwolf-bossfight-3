@@ -6,7 +6,7 @@ import { AbsoluteFill, useCurrentFrame, Img, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 const ReplayScene = ({ frameData, staticData }) => {
-  const { player, boss, projectiles, playerProjectiles, score } = frameData;
+  const { player, boss, projectiles, playerProjectiles, score, healItem } = frameData;
   const { playerSkin, bossSkin, background, bossProjectileImage } = staticData;
   let bgStyle = {
     width: "100%",
@@ -34,6 +34,23 @@ const ReplayScene = ({ frameData, staticData }) => {
       lineNumber: 38,
       columnNumber: 12
     }),
+    healItem && /* @__PURE__ */ jsxDEV("div", { style: {
+      position: "absolute",
+      left: healItem.x,
+      top: healItem.y,
+      width: healItem.width,
+      height: healItem.height,
+      backgroundImage: healItem.type === "apple" ? "url('/Aple.webp')" : "url('/golden_cheese_heal.png')",
+      backgroundSize: "contain",
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
+      filter: healItem.type === "apple" ? "" : "drop-shadow(0 0 8px #ffd700)",
+      zIndex: 4
+    } }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 44,
+      columnNumber: 17
+    }),
     /* @__PURE__ */ jsxDEV("div", { style: {
       position: "absolute",
       left: boss.x,
@@ -45,11 +62,11 @@ const ReplayScene = ({ frameData, staticData }) => {
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center",
       animation: "none",
-      // Animations handled by frames theoretically, but keeping static for replay performance
-      filter: "drop-shadow(0 0 10px rgba(255,255,255,0.5))"
+      filter: "drop-shadow(0 0 10px rgba(255,255,255,0.5))",
+      zIndex: 2
     } }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 41,
+      lineNumber: 60,
       columnNumber: 12
     }),
     /* @__PURE__ */ jsxDEV("div", { style: {
@@ -62,10 +79,10 @@ const ReplayScene = ({ frameData, staticData }) => {
       backgroundSize: "cover",
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center",
-      zIndex: 10
+      zIndex: 3
     } }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 56,
+      lineNumber: 76,
       columnNumber: 12
     }),
     projectiles.map((p, i) => /* @__PURE__ */ jsxDEV("div", { style: {
@@ -78,10 +95,10 @@ const ReplayScene = ({ frameData, staticData }) => {
       backgroundSize: "contain",
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center",
-      zIndex: 5
+      zIndex: 4
     } }, `enemy-proj-${i}`, false, {
       fileName: "<stdin>",
-      lineNumber: 71,
+      lineNumber: 91,
       columnNumber: 17
     })),
     playerProjectiles.map((p, i) => {
@@ -102,12 +119,155 @@ const ReplayScene = ({ frameData, staticData }) => {
           borderRadius: 4,
           boxShadow: "0 0 8px #00ffea"
         },
-        zIndex: 5
+        zIndex: 4
       } }, `player-proj-${i}`, false, {
         fileName: "<stdin>",
-        lineNumber: 89,
+        lineNumber: 109,
         columnNumber: 20
       });
+    }),
+    /* @__PURE__ */ jsxDEV("div", { style: {
+      position: "absolute",
+      top: 15,
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: 320,
+      height: 30,
+      backgroundColor: "rgba(0,0,0,0.3)",
+      border: "2px solid #00ff7f",
+      borderRadius: 8,
+      padding: 3,
+      zIndex: 20,
+      display: "flex",
+      alignItems: "center"
+    }, children: /* @__PURE__ */ jsxDEV("div", { style: { flexGrow: 1, height: "100%", backgroundColor: "#2a2a2a", borderRadius: 5, overflow: "hidden", position: "relative" }, children: [
+      /* @__PURE__ */ jsxDEV("div", { style: {
+        width: `${boss.health / boss.maxHealth * 100}%`,
+        height: "100%",
+        background: "linear-gradient(to right, #00ff7f, #ff00ff)",
+        borderRadius: 5
+      } }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 149,
+        columnNumber: 21
+      }),
+      /* @__PURE__ */ jsxDEV("span", { style: {
+        position: "absolute",
+        left: 10,
+        top: "50%",
+        transform: "translateY(-50%)",
+        fontFamily: "'Press Start 2P', cursive",
+        fontSize: 9,
+        color: "#fff",
+        textShadow: "1px 1px 1px #000"
+      }, children: "BOSS HEALTH" }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 155,
+        columnNumber: 21
+      })
+    ] }, void 0, true, {
+      fileName: "<stdin>",
+      lineNumber: 148,
+      columnNumber: 17
+    }) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 133,
+      columnNumber: 13
+    }),
+    /* @__PURE__ */ jsxDEV("div", { style: {
+      position: "absolute",
+      bottom: 15,
+      left: 20,
+      width: 220,
+      height: 28,
+      backgroundColor: "rgba(0,0,0,0.3)",
+      border: "2px solid #00c6ff",
+      borderRadius: 8,
+      padding: 3,
+      zIndex: 20,
+      display: "flex",
+      alignItems: "center"
+    }, children: /* @__PURE__ */ jsxDEV("div", { style: { flexGrow: 1, height: "100%", backgroundColor: "#2a2a2a", borderRadius: 5, overflow: "hidden", position: "relative" }, children: [
+      /* @__PURE__ */ jsxDEV("div", { style: {
+        width: `${player.health / player.maxHealth * 100}%`,
+        height: "100%",
+        background: "linear-gradient(to right, #00ff00, #7fff00)",
+        borderRadius: 5
+      } }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 180,
+        columnNumber: 21
+      }),
+      /* @__PURE__ */ jsxDEV("span", { style: {
+        position: "absolute",
+        left: 10,
+        top: "50%",
+        transform: "translateY(-50%)",
+        fontFamily: "'Press Start 2P', cursive",
+        fontSize: 9,
+        color: "#fff",
+        textShadow: "1px 1px 1px #000"
+      }, children: "PLAYER HEALTH" }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 186,
+        columnNumber: 21
+      })
+    ] }, void 0, true, {
+      fileName: "<stdin>",
+      lineNumber: 179,
+      columnNumber: 17
+    }) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 165,
+      columnNumber: 13
+    }),
+    player.isCharging && /* @__PURE__ */ jsxDEV("div", { style: {
+      position: "absolute",
+      bottom: 60,
+      left: 20,
+      width: 180,
+      height: 18,
+      backgroundColor: "rgba(10,20,10,0.4)",
+      border: "2px solid #A8FF78",
+      borderRadius: 5,
+      padding: 2,
+      zIndex: 20,
+      display: "flex",
+      alignItems: "center",
+      boxShadow: "0 0 8px #A8FF78aa"
+    }, children: /* @__PURE__ */ jsxDEV("div", { style: { flexGrow: 1, height: "100%", backgroundColor: "#1a2a1a", borderRadius: 3, overflow: "hidden", position: "relative" }, children: [
+      /* @__PURE__ */ jsxDEV("div", { style: {
+        width: `${player.chargeLevel * 100}%`,
+        height: "100%",
+        background: "linear-gradient(to right, #6DD400, #A8FF78)",
+        borderRadius: 3
+      } }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 213,
+        columnNumber: 25
+      }),
+      /* @__PURE__ */ jsxDEV("span", { style: {
+        position: "absolute",
+        left: 8,
+        top: "50%",
+        transform: "translateY(-50%)",
+        fontFamily: "'Press Start 2P', cursive",
+        fontSize: 7,
+        color: "#fff",
+        textShadow: "1px 1px 1px #000"
+      }, children: "STINK RAY" }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 219,
+        columnNumber: 25
+      })
+    ] }, void 0, true, {
+      fileName: "<stdin>",
+      lineNumber: 212,
+      columnNumber: 21
+    }) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 197,
+      columnNumber: 17
     }),
     /* @__PURE__ */ jsxDEV("div", { style: {
       position: "absolute",
@@ -123,7 +283,7 @@ const ReplayScene = ({ frameData, staticData }) => {
       score
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 111,
+      lineNumber: 229,
       columnNumber: 12
     }),
     /* @__PURE__ */ jsxDEV("div", { style: {
@@ -135,7 +295,7 @@ const ReplayScene = ({ frameData, staticData }) => {
       fontFamily: "'Orbitron', sans-serif"
     }, children: "REPLAY MODE" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 124,
+      lineNumber: 242,
       columnNumber: 12
     })
   ] }, void 0, true, {
@@ -173,7 +333,7 @@ const ReplayComposition = ({ replayData, staticData }) => {
   return /* @__PURE__ */ jsxDEV(Fragment, { children: [
     staticData.bgmSrc && /* @__PURE__ */ jsxDEV(Audio, { src: staticData.bgmSrc, volume: 0.25, loop: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 170,
+      lineNumber: 288,
       columnNumber: 17
     }),
     audioEvents.map((evt, i) => {
@@ -181,22 +341,22 @@ const ReplayComposition = ({ replayData, staticData }) => {
       if (!src) return null;
       return /* @__PURE__ */ jsxDEV(Sequence, { from: evt.frame, durationInFrames: 60, children: /* @__PURE__ */ jsxDEV(Audio, { src, volume: 0.6 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 177,
+        lineNumber: 295,
         columnNumber: 25
       }) }, `sfx-${i}`, false, {
         fileName: "<stdin>",
-        lineNumber: 176,
+        lineNumber: 294,
         columnNumber: 21
       });
     }),
     /* @__PURE__ */ jsxDEV(ReplayScene, { frameData: currentFrameData, staticData }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 181,
+      lineNumber: 299,
       columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 168,
+    lineNumber: 286,
     columnNumber: 9
   });
 };
@@ -226,13 +386,13 @@ function mountReplay(containerId, replayData, staticData) {
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 201,
+        lineNumber: 319,
         columnNumber: 13
       },
       this
     ) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 200,
+      lineNumber: 318,
       columnNumber: 9
     }, this)
   );
