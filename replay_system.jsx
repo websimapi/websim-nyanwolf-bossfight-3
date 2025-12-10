@@ -397,6 +397,13 @@ function mountReplay(containerId, replayData, staticData) {
     }, this)
   );
 }
+function unmountReplay() {
+  if (root) {
+    root.unmount();
+    root = null;
+  }
+}
 export {
-  mountReplay
+  mountReplay,
+  unmountReplay
 };

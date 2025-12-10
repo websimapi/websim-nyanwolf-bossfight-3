@@ -1,5 +1,5 @@
 import nipplejs from 'nipplejs';
-import { mountReplay } from './replay_system.jsx';
+import { mountReplay, unmountReplay } from './replay_system.jsx';
 
 document.addEventListener('DOMContentLoaded', () => {
     const GAME_WIDTH = 800;
@@ -1372,6 +1372,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Actually, Blue Cheese default logic:
                 if (equippedPlayerSkinId === 'player_skin_blue_cheese_default') playerSkinImg = '/Bluecheeses_1_2048x.webp';
 
+                // Extend replay data with 2 seconds of padding (120 frames at 60fps)
+                let extendedReplayData = [...replayData];
+                if (extendedReplayData.length > 0) {
+                    const lastFrame = extendedReplayData[extendedReplayData.length - 1];
+                    for (let i = 0; i < 120; i++) {
+                        extendedReplayData.push({
+                            ...lastFrame,
+                            events: [] // Clear events so sounds don't loop
+                        });
+                    }
+                }
+
                 const staticData = {
                     playerSkin: playerSkinImg,
                     bossSkin: equippedBossSkin.image || '/nyanwolf-neutral-no-background.png',
@@ -1380,7 +1392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bgmSrc: bgm.src
                 };
                 
-                mountReplay('replay-player-root', replayData, staticData);
+                mountReplay('replay-player-root', extendedReplayData, staticData);
             };
         }
 
@@ -1389,6 +1401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closeReplayBtn) {
             closeReplayBtn.onclick = () => {
                 document.getElementById('replay-modal').style.display = 'none';
+                unmountReplay();
             };
         }
 
