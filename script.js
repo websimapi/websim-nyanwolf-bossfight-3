@@ -1417,7 +1417,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const activeDuration = endTime - replayStartTime - totalPauseDuration;
                 // Default to 60 if something goes wrong, otherwise calc fps
                 const calculatedFPS = activeDuration > 0 ? (replayData.length / (activeDuration / 1000)) : 60;
-                const replayFPS = Math.max(1, Math.round(calculatedFPS));
+                // Cap at 60 to avoid high refresh rate issues with rendering
+                const replayFPS = Math.min(60, Math.max(1, Math.round(calculatedFPS)));
 
                 // We now capture real frames during the ending sequence, so no need for artificial padding.
                 const finalReplayData = replayData;

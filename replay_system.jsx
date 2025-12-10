@@ -304,7 +304,7 @@ const ReplayScene = ({ frameData, staticData }) => {
     columnNumber: 9
   });
 };
-const ReplayComposition = ({ replayData, staticData }) => {
+function ReplayComposition({ replayData, staticData }) {
   const frame = useCurrentFrame();
   const index = Math.min(Math.floor(frame), replayData.length - 1);
   const currentFrameData = replayData[Math.max(0, index)];
@@ -333,7 +333,7 @@ const ReplayComposition = ({ replayData, staticData }) => {
       fileName: "<stdin>",
       lineNumber: 288,
       columnNumber: 17
-    }),
+    }, this),
     audioEvents.map((evt, i) => {
       const src = SOUND_URLS[evt.type];
       if (!src) return null;
@@ -341,23 +341,24 @@ const ReplayComposition = ({ replayData, staticData }) => {
         fileName: "<stdin>",
         lineNumber: 295,
         columnNumber: 25
-      }) }, `sfx-${i}`, false, {
+      }, this) }, `sfx-${i}`, false, {
         fileName: "<stdin>",
         lineNumber: 294,
         columnNumber: 21
-      });
+      }, this);
     }),
     /* @__PURE__ */ jsxDEV(ReplayScene, { frameData: currentFrameData, staticData }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 299,
       columnNumber: 13
-    })
+    }, this)
   ] }, void 0, true, {
     fileName: "<stdin>",
     lineNumber: 286,
     columnNumber: 9
-  });
-};
+  }, this);
+}
+;
 let root = null;
 function mountReplay(containerId, replayData, staticData, fps = 60) {
   const container = document.getElementById(containerId);
@@ -378,7 +379,8 @@ function mountReplay(containerId, replayData, staticData, fps = 60) {
         controls: true,
         loop: true,
         inputProps: { replayData, staticData },
-        style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" }
+        style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" },
+        allowDownload: false
       },
       void 0,
       false,
