@@ -155,16 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerProjectiles = [];
     let keys = {};
     let isGameOver = false;
-    let isEnding = false;
     let score = 0;
     let gameLoopId;
     let scoreIntervalId;
     let lastPlayerAttackTime = 0;
     let isPaused = false;
     let replayData = []; // Store frame data for replay
-    let lastFrameTime = 0;
-    const TARGET_FPS = 60;
-    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+    // Game End State
+    let isGameEnding = false;
 
     // Replay System State
     let eventsQueue = [];
@@ -723,31 +722,10 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame(currentGameMode);
     }
 
-    function triggerGameOver(playerWon) {
-        if (isEnding || isGameOver) return;
-        isEnding = true;
-
-        // Stop charging if active
-        if (isChargingStinkRay) {
-            isChargingStinkRay = false;
-            if (stinkRayChargeSoundNode) {
-                stinkRayChargeSoundNode.stop();
-                stinkRayChargeSoundNode = null;
-            }
-            if (playerChargeContainerElem) playerChargeContainerElem.style.display = 'none';
-            if (playerChargeBarElem) playerChargeBarElem.style.width = '0%';
-        }
-        
-        // 2 second delay before showing the actual game over screen
-        setTimeout(() => {
-            gameOver(playerWon);
-        }, 2000);
-    }
-
     async function initGame(gameMode) {
         isGameOver = false;
-        isEnding = false;
         isPaused = false;
+        isGameEnding = false; // Reset game ending state
         replayData = []; // Reset replay data
         eventsQueue = []; // Reset event queue
         pauseScreen.style.display = 'none';
@@ -926,9 +904,12 @@ document.addEventListener('DOMContentLoaded', () => {
         menuScreen.style.display = 'none';
         gameArea.style.display = 'block';
 
+        if (gameLoopId) cancelAnimationFrame(gameLoopId);
+        gameLoopId = requestAnimationFrame(gameLoop);
+
         if (scoreIntervalId) clearInterval(scoreIntervalId);
         scoreIntervalId = setInterval(() => {
-            if (!isGameOver && !isPaused && !isEnding) { 
+            if (!isGameOver && !isPaused && !isGameEnding) { 
                 score += 10; 
                 scoreDisplay.textContent = `Score: ${score}`;
             }
@@ -965,7 +946,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePlayer() {
-        if (isGameOver || isPaused || isEnding) return;
+        if (isGameOver || isPaused) return;
+        
+        // Block player input and movement during ending sequence
+        if (isGameEnding) return;
+
         let pdx = 0; 
         let pdy = 0; 
 
@@ -1025,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateBossMovement() {
-        if (isGameOver || isPaused || isBossStunned || isEnding) return;
+        if (isGameOver || isPaused || isBossStunned || isGameEnding) return;
 
         boss.x += boss.dx;
 
@@ -1174,14 +1159,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.element.remove();
                     projectiles.splice(i, 1);
                     
-                    player.health -= currentBossProjectileDamage; 
-                    updateHealthBar(playerHealthBarElem, player.health, currentPlayerMaxHealth, playerHealthLabel, "");
+                    if (!isGameEnding) {
+                        player.health -= currentBossProjectileDamage; 
+                        updateHealthBar(playerHealthBarElem, player.health, currentPlayerMaxHealth, playerHealthLabel, "");
 
-                    playSound(playerHitBuffer);
-                    recordReplayEvent('hit');
+                        playSound(playerHitBuffer);
+                        recordReplayEvent('hit');
 
-                    if (player.health <= 0) {
-                        triggerGameOver(false); 
+                        if (player.health <= 0) {
+                            triggerGameEnd(false); 
+                        }
                     }
                     break; 
                 }
@@ -1197,6 +1184,14 @@ document.addEventListener('DOMContentLoaded', () => {
             p.element.style.top = p.y + 'px';
 
             if (checkCollision(p, boss)) {
+                // If game is ending, just show visual spark and remove projectile, no damage logic
+                if (isGameEnding) {
+                    createHitSpark(p.x + p.width / 2, p.y);
+                    p.element.remove();
+                    playerProjectiles.splice(i, 1);
+                    continue;
+                }
+
                 let projectileEffectiveDamage = p.damage;
                 let shouldApplyStun = false;
 
@@ -1262,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // if projectileEffectiveDamage is 0 (e.g. Stink Ray on invincible boss), nothing happens to boss health/visuals from this projectile.
 
                 if (boss.health <= 0) {
-                    triggerGameOver(true); 
+                    triggerGameEnd(true); 
                 }
                 continue; 
             }
@@ -1282,7 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function bossAttack() {
-        if (isGameOver || isPaused || isBossStunned || isEnding) return; 
+        if (isGameOver || isPaused || isBossStunned || isGameEnding) return; 
         const currentTime = Date.now();
         if (currentTime - boss.lastAttackTime > boss.currentAttackCooldown) {
             boss.lastAttackTime = currentTime;
@@ -1313,8 +1308,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function gameOver(playerWon) {
+    function triggerGameEnd(playerWon) {
+        if (isGameEnding) return;
+        isGameEnding = true;
+
+        // Record the final state logic here if needed (sounds/events already happened in update loops)
+        // Keep the game loop running for 2 seconds to capture the aftermath
+        setTimeout(() => {
+            finalizeGameOver(playerWon);
+        }, 2000);
+    }
+
+    function finalizeGameOver(playerWon) {
         isGameOver = true;
+        isGameEnding = false;
         isPaused = false; 
         pauseScreen.style.display = 'none'; 
         pauseButton.style.display = 'none'; 
@@ -1395,8 +1402,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Actually, Blue Cheese default logic:
                 if (equippedPlayerSkinId === 'player_skin_blue_cheese_default') playerSkinImg = '/Bluecheeses_1_2048x.webp';
 
-                // Use captured replay data
-                let finalReplayData = [...replayData];
+                // We now capture real frames during the ending sequence, so no need for artificial padding.
+                const finalReplayData = replayData;
 
                 const staticData = {
                     playerSkin: playerSkinImg,
@@ -1699,7 +1706,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateHealItemLogic() {
-        if (isGameOver || isPaused || isEnding) return;
+        if (isGameOver || isPaused) return;
 
         if (!healItem && player.health < currentPlayerMaxHealth) {
             if (Date.now() - lastHealSpawnTime > HEAL_SPAWN_INTERVAL) {
@@ -2221,23 +2228,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateStaticBossImages(); // Update menu image on initial load
-    function gameLoop(timestamp) {
+    function gameLoop() {
         if (isGameOver || isPaused) { 
             if(!isPaused) gameLoopId = requestAnimationFrame(gameLoop); 
             return;
         }
-
-        // Throttle to 60 FPS
-        if (!lastFrameTime) lastFrameTime = timestamp;
-        const deltaTime = timestamp - lastFrameTime;
-
-        if (deltaTime < FRAME_INTERVAL) {
-            gameLoopId = requestAnimationFrame(gameLoop);
-            return;
-        }
-
-        // Adjust lastFrameTime to catch up
-        lastFrameTime = timestamp - (deltaTime % FRAME_INTERVAL);
 
         // --- REPLAY RECORDING START ---
         // Optimization: push lightweight objects
@@ -2294,7 +2289,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bossAttack();
         updateProjectiles();
         updatePlayerProjectiles(); 
-        if (!isEnding) updateHealItemLogic();
+        updateHealItemLogic();
         updateBossStatusEffects(); // Add this call
 
         gameLoopId = requestAnimationFrame(gameLoop);
@@ -2343,8 +2338,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetGameToMenu() {
+        isGameEnding = false; // Ensure ending state is cleared
         isGameOver = true; 
-        isEnding = false;
         isPaused = false;
         eventsQueue = [];
 
@@ -2436,7 +2431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (scoreIntervalId) clearInterval(scoreIntervalId); 
             scoreIntervalId = setInterval(() => {
-                if (!isGameOver && !isPaused && !isEnding) { 
+                if (!isGameOver && !isPaused) { 
                     score += 10;
                     scoreDisplay.textContent = `Score: ${score}`;
                 }
