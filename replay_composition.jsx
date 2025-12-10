@@ -323,9 +323,7 @@ const ReplayComposition = ({ replayData, staticData }) => {
     stink_fire: "/stink_ray_fire.mp3",
     heal: "/heal_pickup.mp3",
     splash: "/player_hit.mp3",
-    // Reusing hit sound for splash as per script
     shop_purchase: "/shop_purchase.mp3"
-    // Just in case
   };
   if (!currentFrameData) return null;
   return /* @__PURE__ */ jsxDEV(Fragment, { children: [
