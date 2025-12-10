@@ -168,6 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Replay System State
     let eventsQueue = [];
     
+    // FPS Calculation State
+    let replayStartTime = 0;
+    let totalPauseDuration = 0;
+    let pauseStartTime = 0;
+
     function recordReplayEvent(type) {
         if (!isGameOver && !isPaused) {
             eventsQueue.push(type);
@@ -728,6 +733,11 @@ document.addEventListener('DOMContentLoaded', () => {
         isGameEnding = false; // Reset game ending state
         replayData = []; // Reset replay data
         eventsQueue = []; // Reset event queue
+
+        replayStartTime = Date.now();
+        totalPauseDuration = 0;
+        pauseStartTime = 0;
+
         pauseScreen.style.display = 'none';
         pauseButton.textContent = 'Pause';
         pauseButton.style.display = 'block';
@@ -1402,6 +1412,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Actually, Blue Cheese default logic:
                 if (equippedPlayerSkinId === 'player_skin_blue_cheese_default') playerSkinImg = '/Bluecheeses_1_2048x.webp';
 
+                // Calculate Recorded FPS to match playback speed
+                const endTime = Date.now();
+                const activeDuration = endTime - replayStartTime - totalPauseDuration;
+                // Default to 60 if something goes wrong, otherwise calc fps
+                const calculatedFPS = activeDuration > 0 ? (replayData.length / (activeDuration / 1000)) : 60;
+                const replayFPS = Math.max(1, Math.round(calculatedFPS));
+
                 // We now capture real frames during the ending sequence, so no need for artificial padding.
                 const finalReplayData = replayData;
 
@@ -1413,7 +1430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bgmSrc: bgm.src
                 };
                 
-                mountReplay('replay-player-root', finalReplayData, staticData);
+                mountReplay('replay-player-root', finalReplayData, staticData, replayFPS);
             };
         }
 
@@ -2021,7 +2038,7 @@ document.addEventListener('DOMContentLoaded', () => {
     minigamesButton.addEventListener('click', () => {
         menuScreen.style.display = 'none';
         minigamesMenuScreen.style.display = 'flex';
-        playSound(shopEnterBuffer); // Re-use sound
+        playSound(shopEnterBuffer); // Re-use
     });
 
     minigamesBackButton.addEventListener('click', () => {
@@ -2390,11 +2407,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function togglePauseGame() {
-        if (isGameOver) return; 
+        if (isGameOver || isGameEnding) return; 
 
         isPaused = !isPaused;
 
         if (isPaused) {
+            pauseStartTime = Date.now();
             if (isTouchDevice && mobileControlsElem) {
                 mobileControlsElem.style.display = 'none';
             }
@@ -2416,6 +2434,11 @@ document.addEventListener('DOMContentLoaded', () => {
             pauseScreen.style.display = 'flex';
             pauseButton.textContent = 'Resume';
         } else { 
+            if (pauseStartTime > 0) {
+                totalPauseDuration += (Date.now() - pauseStartTime);
+                pauseStartTime = 0;
+            }
+
             if (isTouchDevice && mobileControlsElem) {
                 mobileControlsElem.style.display = 'flex';
             }

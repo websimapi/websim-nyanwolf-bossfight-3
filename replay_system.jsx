@@ -361,7 +361,7 @@ const ReplayComposition = ({ replayData, staticData }) => {
   });
 };
 let root = null;
-function mountReplay(containerId, replayData, staticData) {
+function mountReplay(containerId, replayData, staticData, fps = 60) {
   const container = document.getElementById(containerId);
   if (!container) return;
   if (!root) {
@@ -374,7 +374,7 @@ function mountReplay(containerId, replayData, staticData) {
       {
         component: ReplayComposition,
         durationInFrames,
-        fps: 60,
+        fps,
         compositionWidth: GAME_WIDTH,
         compositionHeight: GAME_HEIGHT,
         controls: true,
