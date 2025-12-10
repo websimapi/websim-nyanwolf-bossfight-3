@@ -155,12 +155,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerProjectiles = [];
     let keys = {};
     let isGameOver = false;
+    let isEnding = false;
     let score = 0;
     let gameLoopId;
     let scoreIntervalId;
     let lastPlayerAttackTime = 0;
     let isPaused = false;
     let replayData = []; // Store frame data for replay
+    let lastFrameTime = 0;
+    const TARGET_FPS = 60;
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     // Replay System State
     let eventsQueue = [];
@@ -719,8 +723,30 @@ document.addEventListener('DOMContentLoaded', () => {
         initGame(currentGameMode);
     }
 
+    function triggerGameOver(playerWon) {
+        if (isEnding || isGameOver) return;
+        isEnding = true;
+
+        // Stop charging if active
+        if (isChargingStinkRay) {
+            isChargingStinkRay = false;
+            if (stinkRayChargeSoundNode) {
+                stinkRayChargeSoundNode.stop();
+                stinkRayChargeSoundNode = null;
+            }
+            if (playerChargeContainerElem) playerChargeContainerElem.style.display = 'none';
+            if (playerChargeBarElem) playerChargeBarElem.style.width = '0%';
+        }
+        
+        // 2 second delay before showing the actual game over screen
+        setTimeout(() => {
+            gameOver(playerWon);
+        }, 2000);
+    }
+
     async function initGame(gameMode) {
         isGameOver = false;
+        isEnding = false;
         isPaused = false;
         replayData = []; // Reset replay data
         eventsQueue = []; // Reset event queue
@@ -900,12 +926,9 @@ document.addEventListener('DOMContentLoaded', () => {
         menuScreen.style.display = 'none';
         gameArea.style.display = 'block';
 
-        if (gameLoopId) cancelAnimationFrame(gameLoopId);
-        gameLoopId = requestAnimationFrame(gameLoop);
-
         if (scoreIntervalId) clearInterval(scoreIntervalId);
         scoreIntervalId = setInterval(() => {
-            if (!isGameOver && !isPaused) { 
+            if (!isGameOver && !isPaused && !isEnding) { 
                 score += 10; 
                 scoreDisplay.textContent = `Score: ${score}`;
             }
@@ -942,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updatePlayer() {
-        if (isGameOver || isPaused) return;
+        if (isGameOver || isPaused || isEnding) return;
         let pdx = 0; 
         let pdy = 0; 
 
@@ -1002,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateBossMovement() {
-        if (isGameOver || isPaused || isBossStunned) return;
+        if (isGameOver || isPaused || isBossStunned || isEnding) return;
 
         boss.x += boss.dx;
 
@@ -1158,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     recordReplayEvent('hit');
 
                     if (player.health <= 0) {
-                        gameOver(false); 
+                        triggerGameOver(false); 
                     }
                     break; 
                 }
@@ -1239,7 +1262,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // if projectileEffectiveDamage is 0 (e.g. Stink Ray on invincible boss), nothing happens to boss health/visuals from this projectile.
 
                 if (boss.health <= 0) {
-                    gameOver(true); 
+                    triggerGameOver(true); 
                 }
                 continue; 
             }
@@ -1259,7 +1282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function bossAttack() {
-        if (isGameOver || isPaused || isBossStunned) return; 
+        if (isGameOver || isPaused || isBossStunned || isEnding) return; 
         const currentTime = Date.now();
         if (currentTime - boss.lastAttackTime > boss.currentAttackCooldown) {
             boss.lastAttackTime = currentTime;
@@ -1372,17 +1395,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Actually, Blue Cheese default logic:
                 if (equippedPlayerSkinId === 'player_skin_blue_cheese_default') playerSkinImg = '/Bluecheeses_1_2048x.webp';
 
-                // Extend replay data with 2 seconds of padding (120 frames at 60fps)
-                let extendedReplayData = [...replayData];
-                if (extendedReplayData.length > 0) {
-                    const lastFrame = extendedReplayData[extendedReplayData.length - 1];
-                    for (let i = 0; i < 120; i++) {
-                        extendedReplayData.push({
-                            ...lastFrame,
-                            events: [] // Clear events so sounds don't loop
-                        });
-                    }
-                }
+                // Use captured replay data
+                let finalReplayData = [...replayData];
 
                 const staticData = {
                     playerSkin: playerSkinImg,
@@ -1392,7 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bgmSrc: bgm.src
                 };
                 
-                mountReplay('replay-player-root', extendedReplayData, staticData);
+                mountReplay('replay-player-root', finalReplayData, staticData);
             };
         }
 
@@ -1685,7 +1699,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateHealItemLogic() {
-        if (isGameOver || isPaused) return;
+        if (isGameOver || isPaused || isEnding) return;
 
         if (!healItem && player.health < currentPlayerMaxHealth) {
             if (Date.now() - lastHealSpawnTime > HEAL_SPAWN_INTERVAL) {
@@ -2207,11 +2221,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateStaticBossImages(); // Update menu image on initial load
-    function gameLoop() {
+    function gameLoop(timestamp) {
         if (isGameOver || isPaused) { 
             if(!isPaused) gameLoopId = requestAnimationFrame(gameLoop); 
             return;
         }
+
+        // Throttle to 60 FPS
+        if (!lastFrameTime) lastFrameTime = timestamp;
+        const deltaTime = timestamp - lastFrameTime;
+
+        if (deltaTime < FRAME_INTERVAL) {
+            gameLoopId = requestAnimationFrame(gameLoop);
+            return;
+        }
+
+        // Adjust lastFrameTime to catch up
+        lastFrameTime = timestamp - (deltaTime % FRAME_INTERVAL);
 
         // --- REPLAY RECORDING START ---
         // Optimization: push lightweight objects
@@ -2268,7 +2294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bossAttack();
         updateProjectiles();
         updatePlayerProjectiles(); 
-        updateHealItemLogic();
+        if (!isEnding) updateHealItemLogic();
         updateBossStatusEffects(); // Add this call
 
         gameLoopId = requestAnimationFrame(gameLoop);
@@ -2318,6 +2344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetGameToMenu() {
         isGameOver = true; 
+        isEnding = false;
         isPaused = false;
         eventsQueue = [];
 
@@ -2409,7 +2436,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (scoreIntervalId) clearInterval(scoreIntervalId); 
             scoreIntervalId = setInterval(() => {
-                if (!isGameOver && !isPaused) { 
+                if (!isGameOver && !isPaused && !isEnding) { 
                     score += 10;
                     scoreDisplay.textContent = `Score: ${score}`;
                 }
