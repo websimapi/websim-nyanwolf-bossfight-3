@@ -1,4 +1,4 @@
-import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
+import { jsxDEV } from "react/jsx-dev-runtime";
 import React, { useMemo } from "react";
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
@@ -323,10 +323,11 @@ const ReplayComposition = ({ replayData, staticData }) => {
     stink_fire: "/stink_ray_fire.mp3",
     heal: "/heal_pickup.mp3",
     splash: "/player_hit.mp3",
+    // Reusing hit sound for splash
     shop_purchase: "/shop_purchase.mp3"
   };
   if (!currentFrameData) return null;
-  return /* @__PURE__ */ jsxDEV(Fragment, { children: [
+  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { children: [
     staticData.bgmSrc && /* @__PURE__ */ jsxDEV(Audio, { src: staticData.bgmSrc, volume: 0.25, loop: true }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 286,
@@ -356,6 +357,9 @@ const ReplayComposition = ({ replayData, staticData }) => {
     columnNumber: 9
   });
 };
+var stdin_default = ReplayComposition;
 export {
-  ReplayComposition
+  ReplayComposition,
+  ReplayScene,
+  stdin_default as default
 };
