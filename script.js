@@ -1430,35 +1430,84 @@ document.addEventListener('DOMContentLoaded', () => {
                     bgmSrc: bgm.src
                 };
                 
-                mountReplay('replay-player-root', finalReplayData, staticData, replayFPS);
+                let playerRef = null;
+
+                mountReplay('replay-player-root', finalReplayData, staticData, replayFPS, (ref) => {
+                    playerRef = ref;
+                });
 
                 // Setup Download Button
                 const downloadBtn = document.getElementById('download-replay-button');
                 if (downloadBtn) {
                     downloadBtn.onclick = async () => {
+                        if (!playerRef) return;
+                        
                         const originalText = downloadBtn.textContent;
-                        downloadBtn.textContent = 'Rendering...';
+                        
+                        // Inform user about recording
+                        const proceed = confirm("To download the video, we need to record your screen.\n\nPlease select THIS tab in the sharing window and ensure audio is shared.");
+                        if (!proceed) return;
+
+                        downloadBtn.textContent = 'Preparing...';
                         downloadBtn.disabled = true;
                         
                         try {
-                            // Assuming window.websim.renderMedia is available for server-side rendering
-                            const result = await window.websim.renderMedia({
-                                compositionId: 'ReplayComposition',
-                                inputProps: { replayData: finalReplayData, staticData },
+                            // Request screen sharing
+                            const stream = await navigator.mediaDevices.getDisplayMedia({
+                                video: { displaySurface: "browser" },
+                                audio: true,
+                                preferCurrentTab: true
                             });
+
+                            downloadBtn.textContent = 'Recording...';
                             
-                            const url = result.url || result;
+                            // Use standard WebM recording
+                            const recorder = new MediaRecorder(stream);
+                            const chunks = [];
                             
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `nyanwolf_replay_${Date.now()}.mp4`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
+                            recorder.ondataavailable = (e) => {
+                                if (e.data.size > 0) chunks.push(e.data);
+                            };
+                            
+                            recorder.onstop = () => {
+                                const blob = new Blob(chunks, { type: 'video/webm' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `nyanwolf_replay_${Date.now()}.webm`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                                
+                                // Stop all tracks
+                                stream.getTracks().forEach(track => track.stop());
+                                
+                                downloadBtn.textContent = originalText;
+                                downloadBtn.disabled = false;
+                            };
+
+                            recorder.start();
+                            
+                            // Reset and play
+                            playerRef.seekTo(0);
+                            playerRef.play();
+                            
+                            // Calculate duration in ms
+                            const durationInSeconds = finalReplayData.length / replayFPS;
+                            const durationMs = durationInSeconds * 1000;
+                            
+                            // Stop after duration + small buffer
+                            setTimeout(() => {
+                                playerRef.pause();
+                                recorder.stop();
+                            }, durationMs + 500);
+                            
                         } catch (err) {
-                            console.error('Render failed:', err);
-                            alert('Video rendering failed: ' + err.message);
-                        } finally {
+                            console.error('Recording failed:', err);
+                            if (err.name !== 'NotAllowedError') {
+                                alert('Recording failed: ' + err.message);
+                            }
                             downloadBtn.textContent = originalText;
                             downloadBtn.disabled = false;
                         }

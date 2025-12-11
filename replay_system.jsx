@@ -23,7 +23,7 @@ const handleSaveReplay = (replayData, staticData) => {
   a.click();
   URL.revokeObjectURL(url);
 };
-function mountReplay(containerId, replayData, staticData, fps = 60) {
+function mountReplay(containerId, replayData, staticData, fps = 60, onPlayerRef) {
   const container = document.getElementById(containerId);
   if (!container) return;
   if (!root) {
@@ -48,6 +48,7 @@ function mountReplay(containerId, replayData, staticData, fps = 60) {
     }, children: /* @__PURE__ */ jsxDEV(
       Player,
       {
+        ref: onPlayerRef,
         component: ReplayComposition,
         durationInFrames,
         fps,
