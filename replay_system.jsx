@@ -1,7 +1,7 @@
 import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { Player, RenderButton } from "@websim/remotion/player";
+import { Player } from "@websim/remotion/player";
 import { AbsoluteFill, useCurrentFrame, Img, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
@@ -377,85 +377,47 @@ function mountReplay(containerId, replayData, staticData, fps = 60) {
       alignItems: "center",
       justifyContent: "center",
       gap: "15px"
-    }, children: [
-      /* @__PURE__ */ jsxDEV("div", { style: {
-        width: "100%",
-        flex: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: 0
-        // Allow flex child to shrink
-      }, children: /* @__PURE__ */ jsxDEV(
-        Player,
-        {
-          component: ReplayComposition,
-          durationInFrames,
-          fps,
-          compositionWidth: GAME_WIDTH,
-          compositionHeight: GAME_HEIGHT,
-          controls: true,
-          loop: true,
-          numberOfSharedAudioTags: 20,
-          inputProps: { replayData, staticData },
-          style: {
-            width: "100%",
-            height: "100%",
-            maxWidth: "100%",
-            maxHeight: "100%",
-            boxShadow: "0 0 20px rgba(0,0,0,0.5)"
-          }
-        },
-        void 0,
-        false,
-        {
-          fileName: "<stdin>",
-          lineNumber: 335,
-          columnNumber: 17
-        },
-        this
-      ) }, void 0, false, {
+    }, children: /* @__PURE__ */ jsxDEV("div", { style: {
+      width: "100%",
+      flex: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: 0
+      // Allow flex child to shrink
+    }, children: /* @__PURE__ */ jsxDEV(
+      Player,
+      {
+        component: ReplayComposition,
+        durationInFrames,
+        fps,
+        compositionWidth: GAME_WIDTH,
+        compositionHeight: GAME_HEIGHT,
+        controls: true,
+        loop: true,
+        numberOfSharedAudioTags: 20,
+        inputProps: { replayData, staticData },
+        style: {
+          width: "100%",
+          height: "100%",
+          maxWidth: "100%",
+          maxHeight: "100%",
+          boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+        }
+      },
+      void 0,
+      false,
+      {
         fileName: "<stdin>",
-        lineNumber: 327,
-        columnNumber: 13
-      }, this),
-      /* @__PURE__ */ jsxDEV(
-        RenderButton,
-        {
-          component: ReplayComposition,
-          durationInFrames,
-          fps,
-          compositionWidth: GAME_WIDTH,
-          compositionHeight: GAME_HEIGHT,
-          inputProps: { replayData, staticData },
-          filename: "nyanwolf-replay.mp4",
-          style: {
-            padding: "12px 24px",
-            fontSize: "16px",
-            fontFamily: "'Orbitron', sans-serif",
-            backgroundColor: "#00c6ff",
-            color: "#1a1a2e",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            boxShadow: "0 4px 15px rgba(0, 198, 255, 0.4)",
-            transition: "transform 0.2s, box-shadow 0.2s",
-            textDecoration: "none",
-            display: "inline-block"
-          }
-        },
-        void 0,
-        false,
-        {
-          fileName: "<stdin>",
-          lineNumber: 355,
-          columnNumber: 13
-        },
-        this
-      )
-    ] }, void 0, true, {
+        lineNumber: 335,
+        columnNumber: 17
+      },
+      this
+    ) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 327,
+      columnNumber: 13
+    }, this) }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 318,
       columnNumber: 9
