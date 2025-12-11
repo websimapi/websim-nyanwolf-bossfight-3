@@ -1443,71 +1443,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!playerRef) return;
                         
                         const originalText = downloadBtn.textContent;
-                        
-                        // Inform user about recording
-                        const proceed = confirm("To download the video, we need to record your screen.\n\nPlease select THIS tab in the sharing window and ensure audio is shared.");
-                        if (!proceed) return;
-
-                        downloadBtn.textContent = 'Preparing...';
+                        downloadBtn.textContent = 'Rendering...';
                         downloadBtn.disabled = true;
                         
                         try {
-                            // Request screen sharing
-                            const stream = await navigator.mediaDevices.getDisplayMedia({
-                                video: { displaySurface: "browser" },
-                                audio: true,
-                                preferCurrentTab: true
-                            });
-
-                            downloadBtn.textContent = 'Recording...';
-                            
-                            // Use standard WebM recording
-                            const recorder = new MediaRecorder(stream);
-                            const chunks = [];
-                            
-                            recorder.ondataavailable = (e) => {
-                                if (e.data.size > 0) chunks.push(e.data);
-                            };
-                            
-                            recorder.onstop = () => {
-                                const blob = new Blob(chunks, { type: 'video/webm' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `nyanwolf_replay_${Date.now()}.webm`;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(url);
+                            // Call the global function exposed by replay_system.jsx
+                            // This uses canvas.captureStream() which is a "render process" relative to screen recording
+                            // and does NOT require user permission/tab selection.
+                            if (window.downloadReplayVideo) {
+                                await window.downloadReplayVideo(`nyanwolf_replay_${Date.now()}.webm`);
                                 
-                                // Stop all tracks
-                                stream.getTracks().forEach(track => track.stop());
-                                
-                                downloadBtn.textContent = originalText;
-                                downloadBtn.disabled = false;
-                            };
-
-                            recorder.start();
-                            
-                            // Reset and play
-                            playerRef.seekTo(0);
-                            playerRef.play();
-                            
-                            // Calculate duration in ms
-                            const durationInSeconds = finalReplayData.length / replayFPS;
-                            const durationMs = durationInSeconds * 1000;
-                            
-                            // Stop after duration + small buffer
-                            setTimeout(() => {
-                                playerRef.pause();
-                                recorder.stop();
-                            }, durationMs + 500);
+                                // Reset button after estimated render time (since the function is async but fire-and-forget-ish regarding the recorder stop)
+                                // Actually, allow the user to click again after a few seconds if needed
+                                setTimeout(() => {
+                                    downloadBtn.textContent = originalText;
+                                    downloadBtn.disabled = false;
+                                }, 5000);
+                            } else {
+                                throw new Error("Download function not loaded");
+                            }
                             
                         } catch (err) {
-                            console.error('Recording failed:', err);
-                            if (err.name !== 'NotAllowedError') {
-                                alert('Recording failed: ' + err.message);
-                            }
+                            console.error('Render failed:', err);
+                            alert('Render failed: ' + err.message);
                             downloadBtn.textContent = originalText;
                             downloadBtn.disabled = false;
                         }

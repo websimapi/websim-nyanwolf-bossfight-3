@@ -1,306 +1,185 @@
 import { jsxDEV } from "react/jsx-dev-runtime";
-import React, { useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
-const ReplayScene = ({ frameData, staticData }) => {
-  const { player, boss, projectiles, playerProjectiles, score, healItem } = frameData;
-  const { playerSkin, bossSkin, background, bossProjectileImage } = staticData;
-  let bgStyle = {
-    width: "100%",
-    height: "100%",
-    position: "absolute"
-  };
-  if (background === "white") {
-    bgStyle.backgroundColor = "white";
-  } else {
-    bgStyle.backgroundImage = `url(${background})`;
-    bgStyle.backgroundSize = "cover";
-    bgStyle.backgroundPosition = "center";
-  }
-  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { style: {
-    width: GAME_WIDTH,
-    height: GAME_HEIGHT,
-    backgroundColor: "black",
-    // Fallback
-    position: "relative",
-    overflow: "hidden",
-    fontFamily: "'Orbitron', sans-serif"
-  }, children: [
-    /* @__PURE__ */ jsxDEV("div", { style: bgStyle }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 36,
-      columnNumber: 12
-    }),
-    healItem && /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      left: healItem.x,
-      top: healItem.y,
-      width: healItem.width,
-      height: healItem.height,
-      backgroundImage: healItem.type === "apple" ? "url('/Aple.webp')" : "url('/golden_cheese_heal.png')",
-      backgroundSize: "contain",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
-      filter: healItem.type === "apple" ? "" : "drop-shadow(0 0 8px #ffd700)",
-      zIndex: 4
-    } }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 42,
-      columnNumber: 17
-    }),
-    /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      left: boss.x,
-      top: boss.y,
-      width: 150,
-      height: 150,
-      backgroundImage: `url(${bossSkin})`,
-      backgroundSize: "contain",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
-      animation: "none",
-      filter: "drop-shadow(0 0 10px rgba(255,255,255,0.5))",
-      zIndex: 2
-    } }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 58,
-      columnNumber: 12
-    }),
-    /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      left: player.x,
-      top: player.y,
-      width: 50,
-      height: 50,
-      backgroundImage: `url(${playerSkin})`,
-      backgroundSize: "cover",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
-      zIndex: 3
-    } }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 74,
-      columnNumber: 12
-    }),
-    projectiles.map((p, i) => /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      left: p.x,
-      top: p.y,
-      width: p.width,
-      height: p.height,
-      backgroundImage: `url(${bossProjectileImage})`,
-      backgroundSize: "contain",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
-      zIndex: 4
-    } }, `enemy-proj-${i}`, false, {
-      fileName: "<stdin>",
-      lineNumber: 89,
-      columnNumber: 17
-    })),
-    playerProjectiles.map((p, i) => {
-      const isStinkRay = p.type === "stink_ray";
-      return /* @__PURE__ */ jsxDEV("div", { style: {
-        position: "absolute",
-        left: p.x,
-        top: p.y,
-        width: p.width,
-        height: p.height,
-        ...isStinkRay ? {
-          backgroundImage: "url('/stink_ray_projectile.png')",
-          backgroundSize: "contain",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center"
-        } : {
-          backgroundColor: "#00ffea",
-          borderRadius: 4,
-          boxShadow: "0 0 8px #00ffea"
-        },
-        zIndex: 4
-      } }, `player-proj-${i}`, false, {
-        fileName: "<stdin>",
-        lineNumber: 107,
-        columnNumber: 20
+const useGameImages = (staticData) => {
+  const [images, setImages] = useState(null);
+  useEffect(() => {
+    const loadImages = async () => {
+      const imgSources = {
+        player: staticData.playerSkin,
+        boss: staticData.bossSkin,
+        projectile_boss: staticData.bossProjectileImage,
+        projectile_player: "/stink_ray_projectile.png",
+        // Stink ray
+        // Standard assets
+        cheese: "/golden_cheese_heal.png",
+        apple: "/Aple.webp",
+        water_balloon: "/water_balloon.png",
+        slop: "/cooltext483247959599869.gif",
+        // GIF support in canvas is partial (static frame), but handled by img.src
+        bg_beach: "/beach_background.png",
+        bg_space: "/game_background.png",
+        token: "/token.png",
+        pizza_icon: "/pizza_icon.png"
+      };
+      const loaded = {};
+      const promises = Object.entries(imgSources).map(([key, src]) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            loaded[key] = img;
+            resolve();
+          };
+          img.onerror = () => {
+            console.warn(`Failed to load image for replay: ${src}`);
+            resolve();
+          };
+          img.src = src;
+        });
       });
-    }),
-    /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      top: 15,
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: 320,
-      height: 30,
-      backgroundColor: "rgba(0,0,0,0.3)",
-      border: "2px solid #00ff7f",
-      borderRadius: 8,
-      padding: 3,
-      zIndex: 20,
-      display: "flex",
-      alignItems: "center"
-    }, children: /* @__PURE__ */ jsxDEV("div", { style: { flexGrow: 1, height: "100%", backgroundColor: "#2a2a2a", borderRadius: 5, overflow: "hidden", position: "relative" }, children: [
-      /* @__PURE__ */ jsxDEV("div", { style: {
-        width: `${boss.health / boss.maxHealth * 100}%`,
-        height: "100%",
-        background: "linear-gradient(to right, #00ff7f, #ff00ff)",
-        borderRadius: 5
-      } }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 147,
-        columnNumber: 21
-      }),
-      /* @__PURE__ */ jsxDEV("span", { style: {
-        position: "absolute",
-        left: 10,
-        top: "50%",
-        transform: "translateY(-50%)",
-        fontFamily: "'Press Start 2P', cursive",
-        fontSize: 9,
-        color: "#fff",
-        textShadow: "1px 1px 1px #000"
-      }, children: "BOSS HEALTH" }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 153,
-        columnNumber: 21
-      })
-    ] }, void 0, true, {
+      await Promise.all(promises);
+      setImages(loaded);
+    };
+    loadImages();
+  }, [staticData]);
+  return images;
+};
+const ReplayScene = ({ frameData, staticData }) => {
+  const canvasRef = useRef(null);
+  const images = useGameImages(staticData);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !images || !frameData) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    ctx.imageSmoothingEnabled = false;
+    if (staticData.background === "white") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    } else {
+      const bgImg = staticData.background.includes("beach") ? images.bg_beach : images.bg_space;
+      if (bgImg) {
+        ctx.drawImage(bgImg, 0, 0, GAME_WIDTH, GAME_HEIGHT);
+      } else {
+        ctx.fillStyle = "#1a1a2e";
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      }
+    }
+    const { player, boss, projectiles, playerProjectiles, score, healItem } = frameData;
+    if (healItem) {
+      const img = healItem.type === "apple" ? images.apple : images.cheese;
+      if (img) {
+        ctx.save();
+        if (healItem.type !== "apple") {
+          ctx.shadowColor = "#ffd700";
+          ctx.shadowBlur = 10;
+        }
+        ctx.drawImage(img, healItem.x, healItem.y, healItem.width, healItem.height);
+        ctx.restore();
+      }
+    }
+    if (images.boss) {
+      ctx.save();
+      if (staticData.bossSkin.includes("summer")) {
+        ctx.filter = "drop-shadow(0 0 10px #00c6ff)";
+      } else {
+        ctx.filter = "drop-shadow(0 0 10px rgba(255,255,255,0.5))";
+      }
+      ctx.drawImage(images.boss, boss.x, boss.y, 150, 150);
+      ctx.restore();
+    }
+    if (images.player) {
+      ctx.drawImage(images.player, player.x, player.y, 50, 50);
+    }
+    projectiles.forEach((p) => {
+      if (images.projectile_boss) {
+        ctx.drawImage(images.projectile_boss, p.x, p.y, p.width, p.height);
+      }
+    });
+    playerProjectiles.forEach((p) => {
+      if (p.type === "stink_ray") {
+        if (images.projectile_player) {
+          ctx.drawImage(images.projectile_player, p.x, p.y, p.width, p.height);
+        }
+      } else {
+        ctx.fillStyle = "#00ffea";
+        ctx.shadowColor = "#00ffea";
+        ctx.shadowBlur = 8;
+        ctx.fillRect(p.x, p.y, p.width, p.height);
+        ctx.shadowBlur = 0;
+      }
+    });
+    ctx.font = "22px 'Press Start 2P'";
+    ctx.fillStyle = "white";
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(`Score: ${score}`, 20, 40);
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    const drawHealthBar = (x, y, w, h, current, max, colorStart, colorEnd, label) => {
+      ctx.fillStyle = "rgba(0,0,0,0.5)";
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = colorStart;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+      const fillW = Math.max(0, current / max * (w - 6));
+      const gradient = ctx.createLinearGradient(x + 3, y, x + 3 + fillW, y);
+      gradient.addColorStop(0, colorStart);
+      gradient.addColorStop(1, colorEnd);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x + 3, y + 3, fillW, h - 6);
+      ctx.font = "9px 'Press Start 2P'";
+      ctx.fillStyle = "white";
+      ctx.shadowColor = "black";
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.fillText(label, x + 10, y + h / 2 + 4);
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+    };
+    drawHealthBar(GAME_WIDTH / 2 - 160, 15, 320, 30, boss.health, boss.maxHealth, "#00ff7f", "#ff00ff", "BOSS HEALTH");
+    drawHealthBar(20, GAME_HEIGHT - 45, 220, 28, player.health, player.maxHealth, "#00ff00", "#7fff00", "PLAYER HEALTH");
+    if (player.isCharging) {
+      const x = 20, y = GAME_HEIGHT - 80, w = 180, h = 18;
+      ctx.fillStyle = "rgba(10,20,10,0.4)";
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = "#A8FF78";
+      ctx.strokeRect(x, y, w, h);
+      const fillW = Math.max(0, player.chargeLevel * (w - 4));
+      ctx.fillStyle = "#6DD400";
+      ctx.fillRect(x + 2, y + 2, fillW, h - 4);
+      ctx.font = "7px 'Press Start 2P'";
+      ctx.fillStyle = "white";
+      ctx.fillText("STINK RAY", x + 8, y + h / 2 + 3);
+    }
+    ctx.font = "14px 'Orbitron'";
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.textAlign = "right";
+    ctx.fillText("REPLAY MODE", GAME_WIDTH - 20, GAME_HEIGHT - 20);
+    ctx.textAlign = "left";
+  }, [frameData, images, staticData]);
+  if (!images) return null;
+  return /* @__PURE__ */ jsxDEV(
+    "canvas",
+    {
+      ref: canvasRef,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT,
+      id: "replay-canvas-target",
+      style: { width: "100%", height: "100%", objectFit: "contain" }
+    },
+    void 0,
+    false,
+    {
       fileName: "<stdin>",
-      lineNumber: 146,
-      columnNumber: 17
-    }) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 131,
-      columnNumber: 13
-    }),
-    /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      bottom: 15,
-      left: 20,
-      width: 220,
-      height: 28,
-      backgroundColor: "rgba(0,0,0,0.3)",
-      border: "2px solid #00c6ff",
-      borderRadius: 8,
-      padding: 3,
-      zIndex: 20,
-      display: "flex",
-      alignItems: "center"
-    }, children: /* @__PURE__ */ jsxDEV("div", { style: { flexGrow: 1, height: "100%", backgroundColor: "#2a2a2a", borderRadius: 5, overflow: "hidden", position: "relative" }, children: [
-      /* @__PURE__ */ jsxDEV("div", { style: {
-        width: `${player.health / player.maxHealth * 100}%`,
-        height: "100%",
-        background: "linear-gradient(to right, #00ff00, #7fff00)",
-        borderRadius: 5
-      } }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 178,
-        columnNumber: 21
-      }),
-      /* @__PURE__ */ jsxDEV("span", { style: {
-        position: "absolute",
-        left: 10,
-        top: "50%",
-        transform: "translateY(-50%)",
-        fontFamily: "'Press Start 2P', cursive",
-        fontSize: 9,
-        color: "#fff",
-        textShadow: "1px 1px 1px #000"
-      }, children: "PLAYER HEALTH" }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 184,
-        columnNumber: 21
-      })
-    ] }, void 0, true, {
-      fileName: "<stdin>",
-      lineNumber: 177,
-      columnNumber: 17
-    }) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 163,
-      columnNumber: 13
-    }),
-    player.isCharging && /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      bottom: 60,
-      left: 20,
-      width: 180,
-      height: 18,
-      backgroundColor: "rgba(10,20,10,0.4)",
-      border: "2px solid #A8FF78",
-      borderRadius: 5,
-      padding: 2,
-      zIndex: 20,
-      display: "flex",
-      alignItems: "center",
-      boxShadow: "0 0 8px #A8FF78aa"
-    }, children: /* @__PURE__ */ jsxDEV("div", { style: { flexGrow: 1, height: "100%", backgroundColor: "#1a2a1a", borderRadius: 3, overflow: "hidden", position: "relative" }, children: [
-      /* @__PURE__ */ jsxDEV("div", { style: {
-        width: `${player.chargeLevel * 100}%`,
-        height: "100%",
-        background: "linear-gradient(to right, #6DD400, #A8FF78)",
-        borderRadius: 3
-      } }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 211,
-        columnNumber: 25
-      }),
-      /* @__PURE__ */ jsxDEV("span", { style: {
-        position: "absolute",
-        left: 8,
-        top: "50%",
-        transform: "translateY(-50%)",
-        fontFamily: "'Press Start 2P', cursive",
-        fontSize: 7,
-        color: "#fff",
-        textShadow: "1px 1px 1px #000"
-      }, children: "STINK RAY" }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 217,
-        columnNumber: 25
-      })
-    ] }, void 0, true, {
-      fileName: "<stdin>",
-      lineNumber: 210,
-      columnNumber: 21
-    }) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 195,
-      columnNumber: 17
-    }),
-    /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      top: 15,
-      left: 20,
-      color: "white",
-      fontFamily: "'Press Start 2P', cursive",
-      fontSize: 22,
-      textShadow: "2px 2px 0 #000",
-      zIndex: 20
-    }, children: [
-      "Score: ",
-      score
-    ] }, void 0, true, {
-      fileName: "<stdin>",
-      lineNumber: 227,
-      columnNumber: 12
-    }),
-    /* @__PURE__ */ jsxDEV("div", { style: {
-      position: "absolute",
-      bottom: 20,
-      right: 20,
-      color: "rgba(255,255,255,0.5)",
-      fontSize: 14,
-      fontFamily: "'Orbitron', sans-serif"
-    }, children: "REPLAY MODE" }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 240,
-      columnNumber: 12
-    })
-  ] }, void 0, true, {
-    fileName: "<stdin>",
-    lineNumber: 28,
-    columnNumber: 9
-  });
+      lineNumber: 218,
+      columnNumber: 9
+    }
+  );
 };
 const ReplayComposition = ({ replayData, staticData }) => {
   const frame = useCurrentFrame();
@@ -323,14 +202,13 @@ const ReplayComposition = ({ replayData, staticData }) => {
     stink_fire: "/stink_ray_fire.mp3",
     heal: "/heal_pickup.mp3",
     splash: "/player_hit.mp3",
-    // Reusing hit sound for splash
     shop_purchase: "/shop_purchase.mp3"
   };
   if (!currentFrameData) return null;
   return /* @__PURE__ */ jsxDEV(AbsoluteFill, { children: [
     staticData.bgmSrc && /* @__PURE__ */ jsxDEV(Audio, { src: staticData.bgmSrc, volume: 0.25, loop: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 286,
+      lineNumber: 261,
       columnNumber: 17
     }),
     audioEvents.map((evt, i) => {
@@ -338,22 +216,22 @@ const ReplayComposition = ({ replayData, staticData }) => {
       if (!src) return null;
       return /* @__PURE__ */ jsxDEV(Sequence, { from: evt.frame, durationInFrames: 60, children: /* @__PURE__ */ jsxDEV(Audio, { src, volume: 0.6 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 293,
+        lineNumber: 268,
         columnNumber: 25
       }) }, `sfx-${i}`, false, {
         fileName: "<stdin>",
-        lineNumber: 292,
+        lineNumber: 267,
         columnNumber: 21
       });
     }),
     /* @__PURE__ */ jsxDEV(ReplayScene, { frameData: currentFrameData, staticData }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 297,
+      lineNumber: 274,
       columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 284,
+    lineNumber: 258,
     columnNumber: 9
   });
 };

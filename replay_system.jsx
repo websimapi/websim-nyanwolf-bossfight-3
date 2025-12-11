@@ -6,23 +6,7 @@ import { ReplayComposition } from "./replay_composition.jsx";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 let root = null;
-const handleSaveReplay = (replayData, staticData) => {
-  const projectData = {
-    replayData,
-    staticData,
-    version: "1.0",
-    timestamp: (/* @__PURE__ */ new Date()).toISOString()
-  };
-  const blob = new Blob([JSON.stringify(projectData, null, 2)], {
-    type: "application/json"
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `nyanwolf-replay-${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
+let playerRef = null;
 function mountReplay(containerId, replayData, staticData, fps = 60, onPlayerRef) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -37,18 +21,15 @@ function mountReplay(containerId, replayData, staticData, fps = 60, onPlayerRef)
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      justifyContent: "center"
-    }, children: /* @__PURE__ */ jsxDEV("div", { style: {
-      width: "100%",
-      flexGrow: 1,
-      display: "flex",
-      alignItems: "center",
       justifyContent: "center",
-      position: "relative"
+      backgroundColor: "black"
     }, children: /* @__PURE__ */ jsxDEV(
       Player,
       {
-        ref: onPlayerRef,
+        ref: (ref) => {
+          playerRef = ref;
+          if (onPlayerRef) onPlayerRef(ref);
+        },
         component: ReplayComposition,
         durationInFrames,
         fps,
@@ -63,17 +44,13 @@ function mountReplay(containerId, replayData, staticData, fps = 60, onPlayerRef)
       false,
       {
         fileName: "<stdin>",
-        lineNumber: 59,
-        columnNumber: 17
+        lineNumber: 32,
+        columnNumber: 13
       },
       this
     ) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 51,
-      columnNumber: 13
-    }, this) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 43,
+      lineNumber: 23,
       columnNumber: 9
     }, this)
   );
@@ -82,7 +59,62 @@ function unmountReplay() {
   if (root) {
     root.unmount();
     root = null;
+    playerRef = null;
   }
+}
+window.downloadReplayVideo = async (filename = "nyanwolf_replay.webm") => {
+  if (!playerRef) {
+    console.error("No player ref found");
+    return;
+  }
+  const canvas = document.getElementById("replay-canvas-target");
+  if (!canvas) {
+    alert("Rendering canvas not found. Please try playing the replay first.");
+    return;
+  }
+  playerRef.pause();
+  playerRef.seekTo(0);
+  const stream = canvas.captureStream(60);
+  const recordedChunks = [];
+  const mediaRecorder = new MediaRecorder(stream, {
+    mimeType: "video/webm; codecs=vp9",
+    videoBitsPerSecond: 5e6
+    // 5Mbps for high quality
+  });
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      recordedChunks.push(event.data);
+    }
+  };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, {
+      type: "video/webm"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    styleDownloadLink(a, url, filename);
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  };
+  mediaRecorder.start();
+  playerRef.play();
+  const durationFrames = playerRef.getDurationInFrames();
+  const fps = 60;
+  const durationMs = durationFrames / fps * 1e3;
+  setTimeout(() => {
+    playerRef.pause();
+    mediaRecorder.stop();
+    playerRef.seekTo(0);
+  }, durationMs + 200);
+};
+function styleDownloadLink(a, url, filename) {
+  a.href = url;
+  a.download = filename;
+  a.style.display = "none";
 }
 export {
   mountReplay,
