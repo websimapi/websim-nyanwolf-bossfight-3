@@ -1,6 +1,6 @@
 import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React from "react";
-import { Composition } from "remotion";
+import { Composition, registerRoot } from "remotion";
 import { ReplayComposition } from "./replay_composition.jsx";
 const RemotionRoot = () => {
   return /* @__PURE__ */ jsxDEV(Fragment, { children: /* @__PURE__ */ jsxDEV(
@@ -30,6 +30,7 @@ const RemotionRoot = () => {
     columnNumber: 5
   });
 };
+registerRoot(RemotionRoot);
 export {
   RemotionRoot
 };

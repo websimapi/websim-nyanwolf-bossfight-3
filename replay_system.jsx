@@ -38,77 +38,39 @@ function mountReplay(containerId, replayData, staticData, fps = 60) {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center"
-    }, children: [
-      /* @__PURE__ */ jsxDEV("div", { style: {
-        width: "100%",
-        flexGrow: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative"
-      }, children: /* @__PURE__ */ jsxDEV(
-        Player,
-        {
-          component: ReplayComposition,
-          durationInFrames,
-          fps,
-          compositionWidth: GAME_WIDTH,
-          compositionHeight: GAME_HEIGHT,
-          controls: true,
-          loop: true,
-          inputProps: { replayData, staticData },
-          style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" }
-        },
-        void 0,
-        false,
-        {
-          fileName: "<stdin>",
-          lineNumber: 59,
-          columnNumber: 17
-        },
-        this
-      ) }, void 0, false, {
+    }, children: /* @__PURE__ */ jsxDEV("div", { style: {
+      width: "100%",
+      flexGrow: 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      position: "relative"
+    }, children: /* @__PURE__ */ jsxDEV(
+      Player,
+      {
+        component: ReplayComposition,
+        durationInFrames,
+        fps,
+        compositionWidth: GAME_WIDTH,
+        compositionHeight: GAME_HEIGHT,
+        controls: true,
+        loop: true,
+        inputProps: { replayData, staticData },
+        style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" }
+      },
+      void 0,
+      false,
+      {
         fileName: "<stdin>",
-        lineNumber: 51,
-        columnNumber: 13
-      }, this),
-      /* @__PURE__ */ jsxDEV("div", { style: {
-        padding: "10px",
-        display: "flex",
-        gap: "10px"
-      }, children: /* @__PURE__ */ jsxDEV(
-        "button",
-        {
-          onClick: () => handleSaveReplay(replayData, staticData),
-          style: {
-            padding: "10px 20px",
-            fontFamily: "'Orbitron', sans-serif",
-            fontSize: "14px",
-            fontWeight: "bold",
-            color: "white",
-            backgroundColor: "#28a745",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            textTransform: "uppercase",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.3)"
-          },
-          children: "Save Replay (JSON)"
-        },
-        void 0,
-        false,
-        {
-          fileName: "<stdin>",
-          lineNumber: 77,
-          columnNumber: 18
-        },
-        this
-      ) }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 72,
-        columnNumber: 13
-      }, this)
-    ] }, void 0, true, {
+        lineNumber: 59,
+        columnNumber: 17
+      },
+      this
+    ) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 51,
+      columnNumber: 13
+    }, this) }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 43,
       columnNumber: 9

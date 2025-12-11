@@ -1431,6 +1431,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 
                 mountReplay('replay-player-root', finalReplayData, staticData, replayFPS);
+
+                // Setup Download Button
+                const downloadBtn = document.getElementById('download-replay-button');
+                if (downloadBtn) {
+                    downloadBtn.onclick = async () => {
+                        const originalText = downloadBtn.textContent;
+                        downloadBtn.textContent = 'Rendering...';
+                        downloadBtn.disabled = true;
+                        
+                        try {
+                            // Assuming window.websim.renderMedia is available for server-side rendering
+                            const result = await window.websim.renderMedia({
+                                compositionId: 'ReplayComposition',
+                                inputProps: { replayData: finalReplayData, staticData },
+                            });
+                            
+                            const url = result.url || result;
+                            
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `nyanwolf_replay_${Date.now()}.mp4`;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        } catch (err) {
+                            console.error('Render failed:', err);
+                            alert('Video rendering failed: ' + err.message);
+                        } finally {
+                            downloadBtn.textContent = originalText;
+                            downloadBtn.disabled = false;
+                        }
+                    };
+                }
             };
         }
 
