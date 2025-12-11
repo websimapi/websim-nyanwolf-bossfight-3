@@ -379,6 +379,7 @@ function mountReplay(containerId, replayData, staticData, fps = 60) {
         compositionHeight: GAME_HEIGHT,
         controls: true,
         loop: true,
+        numberOfSharedAudioTags: 20,
         inputProps: { replayData, staticData },
         style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" }
       },
