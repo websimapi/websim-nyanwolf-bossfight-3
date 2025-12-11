@@ -1,8 +1,8 @@
 import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { Player } from "@websim/remotion/player";
-import { AbsoluteFill, useCurrentFrame, Audio, Sequence } from "remotion";
+import { Player } from "@remotion/player";
+import { AbsoluteFill, useCurrentFrame, Img, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
 const ReplayScene = ({ frameData, staticData }) => {
@@ -304,7 +304,7 @@ const ReplayScene = ({ frameData, staticData }) => {
     columnNumber: 9
   });
 };
-function ReplayComposition({ replayData, staticData }) {
+const ReplayComposition = ({ replayData, staticData }) => {
   const frame = useCurrentFrame();
   const index = Math.min(Math.floor(frame), replayData.length - 1);
   const currentFrameData = replayData[Math.max(0, index)];
@@ -325,7 +325,9 @@ function ReplayComposition({ replayData, staticData }) {
     stink_fire: "/stink_ray_fire.mp3",
     heal: "/heal_pickup.mp3",
     splash: "/player_hit.mp3",
+    // Reusing hit sound for splash as per script
     shop_purchase: "/shop_purchase.mp3"
+    // Just in case
   };
   if (!currentFrameData) return null;
   return /* @__PURE__ */ jsxDEV(Fragment, { children: [
@@ -333,7 +335,7 @@ function ReplayComposition({ replayData, staticData }) {
       fileName: "<stdin>",
       lineNumber: 288,
       columnNumber: 17
-    }, this),
+    }),
     audioEvents.map((evt, i) => {
       const src = SOUND_URLS[evt.type];
       if (!src) return null;
@@ -341,24 +343,23 @@ function ReplayComposition({ replayData, staticData }) {
         fileName: "<stdin>",
         lineNumber: 295,
         columnNumber: 25
-      }, this) }, `sfx-${i}`, false, {
+      }) }, `sfx-${i}`, false, {
         fileName: "<stdin>",
         lineNumber: 294,
         columnNumber: 21
-      }, this);
+      });
     }),
     /* @__PURE__ */ jsxDEV(ReplayScene, { frameData: currentFrameData, staticData }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 299,
       columnNumber: 13
-    }, this)
+    })
   ] }, void 0, true, {
     fileName: "<stdin>",
     lineNumber: 286,
     columnNumber: 9
-  }, this);
-}
-;
+  });
+};
 let root = null;
 function mountReplay(containerId, replayData, staticData, fps = 60) {
   const container = document.getElementById(containerId);
@@ -403,8 +404,6 @@ function unmountReplay() {
   }
 }
 export {
-  ReplayComposition,
-  ReplayScene,
   mountReplay,
   unmountReplay
 };
