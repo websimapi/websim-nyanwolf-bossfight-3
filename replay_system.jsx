@@ -1,7 +1,7 @@
 import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { Player } from "@remotion/player";
+import { Player } from "@websim/remotion/player";
 import { AbsoluteFill, useCurrentFrame, Img, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
