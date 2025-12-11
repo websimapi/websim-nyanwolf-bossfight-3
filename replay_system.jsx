@@ -1,7 +1,7 @@
 import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
-import { Player } from "@websim/remotion/player";
+import { Player } from "@remotion/player";
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence } from "remotion";
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
@@ -379,8 +379,7 @@ function mountReplay(containerId, replayData, staticData, fps = 60) {
         controls: true,
         loop: true,
         inputProps: { replayData, staticData },
-        style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" },
-        allowDownload: false
+        style: { width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%" }
       },
       void 0,
       false,

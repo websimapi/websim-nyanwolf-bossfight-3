@@ -958,22 +958,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePlayer() {
         if (isGameOver || isPaused) return;
         
-        // Block player input and movement during ending sequence
-        if (isGameEnding) return;
-
         let pdx = 0; 
         let pdy = 0; 
 
         const currentSpeed = isChargingStinkRay ? PLAYER_SPEED * PLAYER_SPEED_CHARGING_MULTIPLIER : PLAYER_SPEED;
 
-        if (isTouchDevice && joystickData.force > JOYSTICK_FORCE_THRESHOLD) {
-            pdx = joystickData.vector.x * currentSpeed;
-            pdy = joystickData.vector.y * currentSpeed * -1; 
-        } else {
-            if (keys['ArrowLeft'] || keys['a']) pdx -= currentSpeed;
-            if (keys['ArrowRight'] || keys['d']) pdx += currentSpeed;
-            if (keys['ArrowUp'] || keys['w']) pdy -= currentSpeed;
-            if (keys['ArrowDown'] || keys['s']) pdy += currentSpeed;
+        // Only process input if not ending, but continue rendering
+        if (!isGameEnding) {
+            if (isTouchDevice && joystickData.force > JOYSTICK_FORCE_THRESHOLD) {
+                pdx = joystickData.vector.x * currentSpeed;
+                pdy = joystickData.vector.y * currentSpeed * -1; 
+            } else {
+                if (keys['ArrowLeft'] || keys['a']) pdx -= currentSpeed;
+                if (keys['ArrowRight'] || keys['d']) pdx += currentSpeed;
+                if (keys['ArrowUp'] || keys['w']) pdy -= currentSpeed;
+                if (keys['ArrowDown'] || keys['s']) pdy += currentSpeed;
+            }
         }
 
         let oldX = player.x;
@@ -1020,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateBossMovement() {
-        if (isGameOver || isPaused || isBossStunned || isGameEnding) return;
+        if (isGameOver || isPaused || isBossStunned) return;
 
         boss.x += boss.dx;
 
@@ -1222,6 +1222,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     boss.health -= projectileEffectiveDamage;
                     updateHealthBar(bossHealthBarElem, boss.health, currentBossMaxHealth, bossHealthLabel, "");
                     createHitSpark(p.x + p.width / 2, p.y); 
+                    playSound(playerHitBuffer); // Play hit sound for boss
+                    recordReplayEvent('hit');
                     
                     // Apply hit flash visual
                     if (!isBossStunned) { // Don't apply hit flash if already stunned, stun visual takes precedence
