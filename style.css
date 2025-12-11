@@ -1572,8 +1572,3 @@ body {
     box-shadow: 0 4px #495057;
 }
 
-/* Hide potential download buttons in player to prevent crash */
-#replay-player-root button[aria-label*="Download"],
-#replay-player-root button[title*="Download"] {
-    display: none !important;
-}
